@@ -1,0 +1,2911 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 Osotek — Réceptionniste de Nuit</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap');
+:root {
+  --bg:#060d18;--bg2:#0d1825;--bg3:#122030;--border:#1e3a5f;
+  --accent:#00d4ff;--accent2:#0090bb;--gold:#ffc857;--green:#00e5a0;
+  --red:#ff4f6d;--text:#cde4f5;--muted:#5a7a99;
+  --font:'Syne',sans-serif;--mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;
+  background:radial-gradient(ellipse at 20% 20%,rgba(0,212,255,0.04) 0%,transparent 50%),
+             radial-gradient(ellipse at 80% 80%,rgba(0,144,187,0.03) 0%,transparent 50%);
+  pointer-events:none;z-index:0;}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:24px;padding:48px;width:90%;max-width:420px;text-align:center;}
+.login-logo{font-size:3rem;margin-bottom:8px;}
+.login-title{font-size:1.6rem;font-weight:800;color:#fff;margin-bottom:4px;}
+.login-sub{color:var(--muted);font-size:0.85rem;margin-bottom:32px;}
+.login-tabs{display:flex;gap:8px;margin-bottom:24px;background:var(--bg3);padding:4px;border-radius:12px;}
+.login-tab{flex:1;padding:8px;border:none;background:none;color:var(--muted);font-family:var(--font);font-weight:700;font-size:0.85rem;border-radius:10px;cursor:pointer;transition:all 0.2s;}
+.login-tab.active{background:var(--accent);color:#000;}
+.login-panel{display:none;} .login-panel.active{display:block;}
+.login-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:var(--font);font-size:0.9rem;outline:none;margin-bottom:12px;transition:border-color 0.2s;}
+.login-input:focus{border-color:var(--accent);}
+.login-btn{width:100%;padding:13px;border:none;border-radius:10px;background:var(--accent);color:#000;font-family:var(--font);font-weight:800;font-size:1rem;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+.login-btn:hover{background:#33ddff;}
+.login-err{color:var(--red);font-size:0.82rem;margin-top:8px;min-height:20px;}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(6,13,24,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 28px;display:flex;align-items:center;height:64px;gap:4px;}
+.nav-logo{font-family:var(--mono);font-size:0.95rem;color:var(--accent);margin-right:24px;white-space:nowrap;}
+.nav-logo span{color:var(--muted);}
+.nav-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--font);font-size:0.82rem;font-weight:600;padding:7px 12px;border-radius:8px;transition:all 0.2s;}
+.nav-btn:hover{color:var(--accent);background:rgba(0,212,255,0.07);}
+.nav-btn.active{color:var(--accent);background:rgba(0,212,255,0.12);}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.nav-clock{font-family:var(--mono);font-size:0.82rem;color:var(--accent);background:rgba(0,212,255,0.08);padding:6px 12px;border-radius:8px;border:1px solid rgba(0,212,255,0.2);}
+.nav-user{font-size:0.8rem;color:var(--muted);padding:6px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;}
+.nav-user:hover{border-color:var(--accent);color:var(--accent);}
+.notif-badge{background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:0.65rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;}
+
+main{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:28px 24px;}
+.page{display:none;} .page.active{display:block;}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+.page-title span{color:var(--accent);}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;position:relative;overflow:hidden;transition:transform 0.2s,border-color 0.2s;}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--accent2);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0.5;}
+.stat-icon{font-size:1.4rem;margin-bottom:10px;}
+.stat-num{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--accent);line-height:1;}
+.stat-num.gold{color:var(--gold);} .stat-num.green{color:var(--green);} .stat-num.red{color:var(--red);}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+.card-title{font-size:0.85rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:10px 14px;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;border-bottom:1px solid var(--border);font-family:var(--mono);}
+td{padding:13px 14px;border-bottom:1px solid rgba(30,58,95,0.5);font-size:0.87rem;}
+tr:last-child td{border-bottom:none;} tr:hover td{background:rgba(0,212,255,0.03);}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--mono);}
+.b-green{background:rgba(0,229,160,0.12);color:var(--green);border:1px solid rgba(0,229,160,0.3);}
+.b-red{background:rgba(255,79,109,0.12);color:var(--red);border:1px solid rgba(255,79,109,0.3);}
+.b-gold{background:rgba(255,200,87,0.12);color:var(--gold);border:1px solid rgba(255,200,87,0.3);}
+.b-blue{background:rgba(0,212,255,0.12);color:var(--accent);border:1px solid rgba(0,212,255,0.3);}
+.b-gray{background:rgba(90,122,153,0.12);color:var(--muted);border:1px solid rgba(90,122,153,0.3);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;border:none;cursor:pointer;font-family:var(--font);font-size:0.85rem;font-weight:700;transition:all 0.2s;}
+.btn-accent{background:var(--accent);color:#000;} .btn-accent:hover{background:#33ddff;transform:translateY(-1px);}
+.btn-green{background:var(--green);color:#000;} .btn-green:hover{background:#33ffb8;}
+.btn-red{background:rgba(255,79,109,0.15);color:var(--red);border:1px solid rgba(255,79,109,0.3);} .btn-red:hover{background:rgba(255,79,109,0.25);}
+.btn-ghost{background:rgba(0,212,255,0.08);color:var(--accent);border:1px solid rgba(0,212,255,0.2);} .btn-ghost:hover{background:rgba(0,212,255,0.15);}
+.btn-gold{background:rgba(255,200,87,0.15);color:var(--gold);border:1px solid rgba(255,200,87,0.3);} .btn-gold:hover{background:rgba(255,200,87,0.25);}
+.btn-sm{padding:5px 12px;font-size:0.78rem;border-radius:8px;}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:6px;}
+.form-group.full{grid-column:1/-1;}
+label{font-size:0.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+input,select,textarea{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--font);font-size:0.87rem;outline:none;transition:border-color 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:80px;}
+select option{background:var(--bg2);}
+.form-actions{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;width:90%;max-width:600px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-title{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+
+/* MESSAGES */
+.msg-list{display:flex;flex-direction:column;gap:12px;max-height:400px;overflow-y:auto;margin-bottom:16px;}
+.msg-item{padding:14px;border-radius:12px;border:1px solid var(--border);}
+.msg-item.unread{border-color:var(--accent);background:rgba(0,212,255,0.04);}
+.msg-item.hotel{background:var(--bg3);}
+.msg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.msg-from{font-weight:700;font-size:0.85rem;color:var(--accent);}
+.msg-date{font-size:0.75rem;color:var(--muted);font-family:var(--mono);}
+.msg-body{font-size:0.87rem;color:var(--text);line-height:1.5;}
+.msg-reply{font-size:0.78rem;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+
+/* TIMELINE */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid rgba(30,58,95,0.4);align-items:flex-start;}
+.tl-item:last-child{border-bottom:none;}
+.tl-time{font-family:var(--mono);font-size:0.78rem;color:var(--accent);min-width:50px;margin-top:2px;}
+.tl-content{flex:1;}
+.tl-desc{font-size:0.88rem;margin-top:4px;}
+.tl-meta{font-size:0.75rem;color:var(--muted);margin-top:3px;}
+
+/* CHART BAR */
+.chart-bar-wrap{display:flex;flex-direction:column;gap:8px;}
+.chart-row{display:flex;align-items:center;gap:10px;}
+.chart-label{font-size:0.78rem;color:var(--muted);min-width:80px;text-align:right;font-family:var(--mono);}
+.chart-bar-bg{flex:1;background:var(--bg3);border-radius:4px;height:20px;overflow:hidden;}
+.chart-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px;transition:width 0.8s ease;}
+.chart-val{font-size:0.78rem;color:var(--accent);min-width:70px;font-family:var(--mono);}
+
+/* TOTAL BOX */
+.total-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-top:16px;text-align:right;}
+.total-box .tl{font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.total-box .ta{font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--accent);}
+
+.empty{text-align:center;padding:36px;color:var(--muted);font-size:0.88rem;}
+.empty .ei{font-size:2.2rem;margin-bottom:10px;}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.search-bar input,.search-bar select{flex:1;min-width:140px;}
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:0.88rem;font-weight:600;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.5);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.warning{border-color:var(--gold);color:var(--gold);}
+.toast.info{border-color:var(--accent);color:var(--accent);}
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+::-webkit-scrollbar{width:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+footer{text-align:center;padding:24px;margin-top:40px;border-top:1px solid var(--border);color:var(--muted);font-size:0.75rem;font-family:var(--mono);letter-spacing:0.5px;}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(2,1fr);}nav{padding:0 14px;}.nav-logo{display:none;}}
+</style>
+
+<!-- Modal Email Gmail -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div class="overlay" id="modal-gmail">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title">📧 Envoyer la facture par Gmail</div>
+    <div id="gmail-facture-info" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;font-size:0.88rem;"></div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Email du destinataire *</label>
+      <input type="email" id="gmail-to" placeholder="contact@hotel.fr">
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>Sujet</label>
+      <input type="text" id="gmail-subject" placeholder="Facture...">
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Message</label>
+      <textarea id="gmail-body" style="min-height:140px"></textarea>
+    </div>
+    <div style="background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:12px;font-size:0.8rem;color:var(--muted);margin-bottom:16px;line-height:1.7">
+      📋 <strong style="color:var(--text)">Étapes :</strong><br>
+      1. Clique <strong style="color:var(--accent)">"Télécharger PDF"</strong> — la facture se télécharge<br>
+      2. Clique <strong style="color:var(--accent)">"Ouvrir Gmail"</strong> — l'email s'ouvre pré-rempli<br>
+      3. Joins le PDF téléchargé dans Gmail, puis envoie !
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-gold" onclick="downloadFacturePDF()">📄 Télécharger PDF</button>
+      <button class="btn btn-accent" onclick="openGmail()">📧 Ouvrir Gmail</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-gmail')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ LOGIN ═══ -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+          </radialGradient>
+          <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00d4ff"/>
+            <stop offset="100%" stop-color="#0090bb"/>
+          </linearGradient>
+        </defs>
+        <!-- Glow background -->
+        <circle cx="40" cy="40" r="38" fill="url(#glow)"/>
+        <!-- Outer ring -->
+        <circle cx="40" cy="40" r="35" stroke="url(#ring)" stroke-width="1" fill="none" stroke-dasharray="4 3"/>
+        <!-- Middle ring -->
+        <circle cx="40" cy="40" r="26" stroke="#00d4ff" stroke-width="0.5" fill="none" opacity="0.4"/>
+        <!-- Core circle -->
+        <circle cx="40" cy="40" r="16" fill="#060d18" stroke="#00d4ff" stroke-width="1.5"/>
+        <!-- Inner glow -->
+        <circle cx="40" cy="40" r="10" fill="none" stroke="#00d4ff" stroke-width="0.5" opacity="0.6"/>
+        <!-- Cross lines -->
+        <line x1="5" y1="40" x2="24" y2="40" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="56" y1="40" x2="75" y2="40" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="40" y1="5" x2="40" y2="24" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+        <line x1="40" y1="56" x2="40" y2="75" stroke="#00d4ff" stroke-width="0.8" opacity="0.5"/>
+        <!-- Diagonal ticks -->
+        <line x1="14" y1="14" x2="20" y2="20" stroke="#00d4ff" stroke-width="0.6" opacity="0.4"/>
+        <line x1="60" y1="60" x2="66" y2="66" stroke="#00d4ff" stroke-width="0.6" opacity="0.4"/>
+        <line x1="60" y1="14" x2="66" y2="20" stroke="#00d4ff" stroke-width="0.6" opacity="0.4" transform="rotate(90 63 17)"/>
+        <line x1="14" y1="60" x2="20" y2="66" stroke="#00d4ff" stroke-width="0.6" opacity="0.4" transform="rotate(90 17 63)"/>
+        <!-- Center dot -->
+        <circle cx="40" cy="40" r="3" fill="#00d4ff"/>
+        <!-- Orbiting dot -->
+        <circle cx="40" cy="14" r="2" fill="#00d4ff" opacity="0.8">
+          <animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="6s" repeatCount="indefinite"/>
+        </circle>
+        <!-- Small dots on ring -->
+        <circle cx="75" cy="40" r="1.5" fill="#00d4ff" opacity="0.6"/>
+        <circle cx="5" cy="40" r="1.5" fill="#00d4ff" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="login-title">THE NIGHT</div>
+    <div class="login-sub">Plateforme de services et réception de nuit</div>
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchTab('admin')">👤 Mon espace</button>
+      <button class="login-tab" onclick="switchTab('hotel')">🏨 Hôtel</button>
+    </div>
+    <div class="login-panel active" id="tab-admin">
+      <input class="login-input" type="text" id="admin-user" placeholder="Identifiant" value="jacques">
+      <input class="login-input" type="password" id="admin-pass" placeholder="Mot de passe" value="">
+      <button class="login-btn" onclick="loginAdmin()">Connexion</button>
+      <div class="login-err" id="admin-err"></div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:12px">Identifiant: jacques / MDP: osotek2026</div>
+    </div>
+    <div class="login-panel" id="tab-hotel">
+      <input class="login-input" type="text" id="hotel-name" placeholder="Nom de l'hôtel">
+      <input class="login-input" type="password" id="hotel-pass" placeholder="Mot de passe hôtel">
+      <button class="login-btn" onclick="loginHotel()">Accès hôtel</button>
+      <div class="login-err" id="hotel-err"></div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:12px">Contactez Jacques pour obtenir votre accès</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ESPACE HOTEL ═══ -->
+<div id="hotelScreen" style="display:none;min-height:100vh;">
+  <nav>
+    <div class="nav-logo">⬡ <span>THE NIGHT /</span> HÔTEL</div>
+    <div class="nav-right">
+      <span class="nav-clock" id="clock-hotel"></span>
+      <span class="nav-user" id="hotel-display" onclick="logout()">⬅️ Déconnexion</span>
+    </div>
+  </nav>
+  <main>
+    <div class="page active">
+      <div class="page-header">
+        <div class="page-title">Espace <span id="hotel-welcome">Hôtel</span></div>
+      </div>
+
+      <!-- Réserver une mission -->
+      <div class="card">
+        <div class="card-title">📅 Réserver une mission de nuit</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Date *</label><input type="date" id="h-date"></div>
+          <div class="form-group"><label>Heure début *</label><input type="time" id="h-debut" value="22:00"></div>
+          <div class="form-group"><label>Heure fin *</label><input type="time" id="h-fin" value="07:00"></div>
+          <div class="form-group"><label>Tarif horaire (€)</label><input type="number" id="h-tarif" value="0" step="0.01" min="0"></div>
+          <div class="form-group full"><label>Message / Instructions</label><textarea id="h-message" placeholder="Informations pour la nuit..."></textarea></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-accent" onclick="hotelReserve()">📅 Envoyer la demande</button>
+        </div>
+      </div>
+
+      <!-- Mes missions -->
+      <div class="card">
+        <div class="card-title">📋 Mes missions réservées</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Horaires</th><th>Statut</th><th>Tarif</th></tr></thead>
+          <tbody id="hotel-missions"></tbody>
+        </table></div>
+        <div id="hotel-missions-empty" class="empty" style="display:none"><div class="ei">📋</div>Aucune mission</div>
+      </div>
+
+      <!-- Factures à régler -->
+      <div class="card" id="hotel-factures-card">
+        <div class="card-title">💶 Mes factures à régler</div>
+        <div id="hotel-factures-list"></div>
+        <div id="hotel-factures-empty" class="empty" style="display:none"><div class="ei">💶</div>Aucune facture en attente</div>
+      </div>
+
+      <!-- Messages -->
+      <div class="card">
+        <div class="card-title">💬 Messages avec Jacques</div>
+        <div class="msg-list" id="hotel-msg-list"></div>
+        <div class="form-group"><textarea id="hotel-msg-input" placeholder="Votre message..." style="margin-bottom:10px"></textarea></div>
+        <button class="btn btn-accent" onclick="hotelSendMsg()">📨 Envoyer</button>
+      </div>
+    </div>
+  </main>
+  <footer><span style="color:var(--accent)">Osotek</span> Sonnet 4.6 par <span style="color:var(--accent)">Quatresols Jacques</span></footer>
+</div>
+
+<!-- ═══ APP PRINCIPALE ═══ -->
+<div id="appScreen" style="display:none">
+<nav>
+  <div class="nav-logo">⬡ <span>THE NIGHT /</span> PRO <span style="font-size:0.7rem;color:var(--muted);margin-left:8px;">by Jacques QUATRESOLS</span></div>
+  <button class="nav-btn active" onclick="showPage('dashboard',this)">⬛ Accueil</button>
+  <button class="nav-btn" onclick="showPage('missions',this)">📅 Missions</button>
+  <button class="nav-btn" onclick="showPage('facturation',this)">💶 Facturation</button>
+  <button class="nav-btn" onclick="showPage('heures',this)">⏱️ Heures</button>
+  <button class="nav-btn" onclick="showPage('revenus',this)">📊 Revenus</button>
+  <button class="nav-btn" onclick="showPage('messages',this)">
+    💬 Messages <span class="notif-badge" id="notif-count" style="display:none">0</span>
+  </button>
+  <button class="nav-btn" onclick="showPage('hotels',this)">🏨 Hôtels</button>
+  <button class="nav-btn" onclick="showPage('documents',this)">📄 Documents</button>
+  <button class="nav-btn" onclick="showPage('contrats',this)">📝 Contrats</button>
+  <div class="nav-right">
+    <div class="nav-clock" id="clock"></div>
+    <span class="nav-user" onclick="logout()">Jacques 👤</span>
+  </div>
+</nav>
+
+<main>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <div class="page-title">Tableau de <span>bord</span></div>
+    <span id="today-display" style="font-family:var(--mono);font-size:0.82rem;color:var(--muted)"></span>
+  </div>
+  <div class="stats">
+    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num green" id="s-missions-mois">0</div><div class="stat-label">Missions ce mois</div></div>
+    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-num" id="s-heures-mois">0h</div><div class="stat-label">Heures ce mois</div></div>
+    <div class="stat-card"><div class="stat-icon">💶</div><div class="stat-num gold" id="s-ca-mois">0€</div><div class="stat-label">CA ce mois</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num red" id="s-impayees">0</div><div class="stat-label">Factures impayées</div></div>
+    <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-num" id="s-msgs">0</div><div class="stat-label">Messages non lus</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📅 Prochaines missions</div>
+      <div id="dash-missions"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💬 Derniers messages</div>
+      <div id="dash-msgs"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 CA des 6 derniers mois</div>
+    <div class="chart-bar-wrap" id="chart-ca"></div>
+  </div>
+</div>
+
+<!-- ═══ MISSIONS ═══ -->
+<div class="page" id="page-missions">
+  <div class="page-header">
+    <div class="page-title">📅 <span>Missions</span></div>
+    <button class="btn btn-accent" onclick="openModal('modal-mission')">+ Nouvelle mission</button>
+  </div>
+  <div class="card">
+    <div class="search-bar">
+      <input type="text" id="search-mission" placeholder="🔍 Rechercher hôtel..." oninput="renderMissions()">
+      <select id="filter-mission-statut" onchange="renderMissions()">
+        <option value="">Tous statuts</option>
+        <option value="confirmée">Confirmée</option>
+        <option value="en attente">En attente</option>
+        <option value="effectuée">Effectuée</option>
+        <option value="annulée">Annulée</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Hôtel</th><th>Date</th><th>Horaires</th><th>Durée</th><th>Tarif/h</th><th>Total</th><th>Statut</th><th>Signature</th><th>Actions</th></tr></thead>
+      <tbody id="tbody-missions"></tbody>
+    </table></div>
+    <div id="missions-empty" class="empty" style="display:none"><div class="ei">📅</div>Aucune mission</div>
+  </div>
+</div>
+
+<!-- ═══ FACTURATION ═══ -->
+<div class="page" id="page-facturation">
+  <div class="page-header">
+    <div class="page-title">💶 <span>Facturation</span></div>
+    <button class="btn btn-accent" onclick="openModal('modal-facture')">+ Nouvelle facture</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Hôtel</th><th>Période</th><th>Missions</th><th>Heures</th><th>Total HT</th><th>TVA</th><th>Total TTC</th><th>Statut</th><th>Actions</th></tr></thead>
+      <tbody id="tbody-factures"></tbody>
+    </table></div>
+    <div id="factures-empty" class="empty" style="display:none"><div class="ei">💶</div>Aucune facture</div>
+  </div>
+</div>
+
+<!-- ═══ HEURES ═══ -->
+<div class="page" id="page-heures">
+  <div class="page-header">
+    <div class="page-title">⏱️ Suivi des <span>heures</span></div>
+    <select id="filter-heures-mois" onchange="renderHeures()" style="background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;color:var(--text);font-family:var(--font);font-size:0.85rem;">
+    </select>
+  </div>
+  <div class="stats" id="heures-stats"></div>
+  <div class="card">
+    <div class="card-title">📋 Détail des heures</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Date</th><th>Hôtel</th><th>Début</th><th>Fin</th><th>Durée</th><th>Tarif/h</th><th>Montant</th><th>Nuit spéciale</th></tr></thead>
+      <tbody id="tbody-heures"></tbody>
+    </table></div>
+    <div id="heures-empty" class="empty" style="display:none"><div class="ei">⏱️</div>Aucune heure enregistrée</div>
+  </div>
+</div>
+
+<!-- ═══ REVENUS ═══ -->
+<div class="page" id="page-revenus">
+  <div class="page-header">
+    <div class="page-title">📊 Mes <span>revenus</span></div>
+  </div>
+  <div class="stats" id="revenus-stats"></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📊 CA mensuel</div>
+      <div class="chart-bar-wrap" id="chart-mensuel"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏨 CA par hôtel</div>
+      <div class="chart-bar-wrap" id="chart-hotels"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Récapitulatif par mois</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Mois</th><th>Missions</th><th>Heures</th><th>CA HT</th><th>Payé</th><th>En attente</th></tr></thead>
+      <tbody id="tbody-revenus"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══ MESSAGES ═══ -->
+<div class="page" id="page-messages">
+  <div class="page-header">
+    <div class="page-title">💬 <span>Messages</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📬 Boîte de réception</div>
+      <div class="msg-list" id="msg-inbox"></div>
+      <div id="msg-inbox-empty" class="empty" style="display:none"><div class="ei">📭</div>Aucun message</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📨 Envoyer un message</div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Destinataire</label>
+        <select id="msg-to"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Sujet</label>
+        <input type="text" id="msg-sujet" placeholder="Objet du message">
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Message</label>
+        <textarea id="msg-corps" placeholder="Votre message..." style="min-height:120px"></textarea>
+      </div>
+      <button class="btn btn-accent" onclick="sendMessage()">📨 Envoyer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOTELS ═══ -->
+<div class="page" id="page-hotels">
+  <div class="page-header">
+    <div class="page-title">🏨 Mes <span>hôtels</span> clients</div>
+    <button class="btn btn-accent" onclick="openModal('modal-hotel')">+ Nouvel hôtel</button>
+  </div>
+  <div class="grid-3" id="hotels-grid"></div>
+  <div id="hotels-empty" class="empty" style="display:none"><div class="ei">🏨</div>Aucun hôtel enregistré</div>
+</div>
+
+<!-- ═══ DOCUMENTS / ORDRES DE MISSION ═══ -->
+<div class="page" id="page-documents">
+  <div class="page-header">
+    <div class="page-title">📄 <span>Ordres de Mission</span></div>
+    <button class="btn btn-accent" onclick="openModal('modal-ordre')">+ Nouvel ordre</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Hôtel</th><th>Mission</th><th>Date création</th><th>Statut signature</th><th>Statut paiement</th><th>Actions</th></tr></thead>
+      <tbody id="tbody-ordres"></tbody>
+    </table></div>
+    <div id="ordres-empty" class="empty" style="display:none"><div class="ei">📄</div>Aucun ordre de mission</div>
+  </div>
+</div>
+
+<!-- ═══ CONTRATS ═══ -->
+<div class="page" id="page-contrats">
+  <div class="page-header">
+    <div class="page-title">📝 <span>Contrats de prestation</span></div>
+    <button class="btn btn-accent" onclick="openModal('modal-contrat')">+ Nouveau contrat</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr><th>#</th><th>Hôtel</th><th>Période</th><th>Tarif</th><th>Statut signature</th><th>Actions</th></tr></thead>
+      <tbody id="tbody-contrats"></tbody>
+    </table></div>
+    <div id="contrats-empty" class="empty" style="display:none"><div class="ei">📝</div>Aucun contrat</div>
+  </div>
+</div>
+
+</main>
+<footer><span style="color:var(--accent)">Osotek</span> Sonnet 4.6 par <span style="color:var(--accent)">Quatresols Jacques</span></footer>
+</div><!-- fin appScreen -->
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Modal Mission -->
+<div class="overlay" id="modal-mission">
+  <div class="modal">
+    <div class="modal-title" id="modal-mission-title">📅 Nouvelle mission</div>
+    <input type="hidden" id="mission-edit-id">
+    <div class="form-grid">
+      <div class="form-group full"><label>Hôtel *</label><select id="m-hotel"></select></div>
+      <div class="form-group"><label>Date *</label><input type="date" id="m-date"></div>
+      <div class="form-group"><label>Heure début *</label><input type="time" id="m-debut" value="22:00"></div>
+      <div class="form-group"><label>Heure fin *</label><input type="time" id="m-fin" value="07:00"></div>
+      <div class="form-group"><label>Tarif horaire (€) *</label><input type="number" id="m-tarif" step="0.01" min="0" value="0" oninput="calcMissionTotal()"></div>
+      <div class="form-group"><label>Statut</label>
+        <select id="m-statut">
+          <option value="confirmée">Confirmée</option>
+          <option value="en attente">En attente</option>
+          <option value="effectuée">Effectuée</option>
+          <option value="annulée">Annulée</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Notes</label><textarea id="m-notes" placeholder="Informations spécifiques..."></textarea></div>
+    </div>
+    <div class="total-box">
+      <div class="tl">Estimation</div>
+      <div class="ta" id="m-total-display">0,00 €</div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveMission()">💾 Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-mission')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Facture -->
+<div class="overlay" id="modal-facture">
+  <div class="modal">
+    <div class="modal-title">💶 Nouvelle facture</div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Hôtel *</label><select id="f-hotel" onchange="fillMissionsFacture()"></select></div>
+      <div class="form-group"><label>N° Facture</label><input type="text" id="f-num" placeholder="Auto"></div>
+      <div class="form-group"><label>Date facture</label><input type="date" id="f-date"></div>
+      <div class="form-group"><label>Missions incluses</label>
+        <select id="f-missions" multiple style="min-height:100px" onchange="calcFactureTotal()"></select>
+        <span style="font-size:0.72rem;color:var(--muted)">Ctrl+clic pour sélectionner plusieurs</span>
+      </div>
+      <div class="form-group"><label>Total heures</label><input type="number" id="f-heures" step="0.5" min="0" value="0" oninput="calcFactureTotal()"></div>
+      <div class="form-group"><label>Tarif moyen (€/h)</label><input type="number" id="f-tarif" step="0.01" min="0" value="0" oninput="calcFactureTotal()"></div>
+      <div class="form-group"><label>TVA (%)</label>
+        <select id="f-tva" onchange="calcFactureTotal()">
+          <option value="0">0% (Auto-entrepreneur)</option>
+          <option value="20">20%</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Statut</label>
+        <select id="f-statut">
+          <option value="en attente">En attente</option>
+          <option value="payée">Payée</option>
+        </select>
+      </div>
+      <div class="form-group full"><label>Notes</label><textarea id="f-notes" placeholder="Détails de la facture..."></textarea></div>
+    </div>
+    <div class="total-box">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);margin-bottom:4px">
+        <span>HT : <strong id="f-ht">0,00 €</strong></span>
+        <span>TVA : <strong id="f-tva-montant">0,00 €</strong></span>
+      </div>
+      <div class="tl">Total TTC</div>
+      <div class="ta" id="f-total">0,00 €</div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveFacture()">💾 Créer la facture</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-facture')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Hôtel -->
+<div class="overlay" id="modal-hotel">
+  <div class="modal">
+    <div class="modal-title">🏨 Nouvel hôtel client</div>
+    <input type="hidden" id="hotel-edit-id">
+    <div class="form-grid">
+      <div class="form-group full"><label>Nom de l'hôtel *</label><input type="text" id="h-nom" placeholder="Hôtel Le Palace"></div>
+      <div class="form-group"><label>Contact</label><input type="text" id="h-contact" placeholder="Nom du responsable"></div>
+      <div class="form-group"><label>Téléphone</label><input type="tel" id="h-tel" placeholder="06..."></div>
+      <div class="form-group"><label>Email</label><input type="email" id="h-email" placeholder="contact@hotel.fr"></div>
+      <div class="form-group"><label>Adresse</label><input type="text" id="h-adresse" placeholder="Adresse complète"></div>
+      <div class="form-group"><label>Tarif horaire habituel (€)</label><input type="number" id="h-tarif-hab" step="0.01" min="0" value="0"></div>
+      <div class="form-group full"><label>Mot de passe accès hôtel *</label><input type="text" id="h-mdp" placeholder="Mot de passe pour l'espace hôtel"></div>
+      <div class="form-group full"><label>Notes</label><textarea id="h-notes" placeholder="Informations sur l'hôtel..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveHotel()">💾 Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-hotel')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Paiement facture -->
+<div class="overlay" id="modal-paiement">
+  <div class="modal">
+    <div class="modal-title">💰 Marquer comme payée</div>
+    <input type="hidden" id="pay-id">
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Mode de paiement</label>
+      <select id="pay-mode">
+        <option>Virement bancaire</option><option>Espèces</option>
+        <option>Chèque</option><option>PayPal</option>
+      </select>
+    </div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Date de paiement</label>
+      <input type="date" id="pay-date">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="confirmPaiement()">✅ Confirmer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-paiement')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Lien Validation -->
+<div class="overlay" id="modal-link">
+  <div class="modal">
+    <div class="modal-title">🔗 Lien de validation & signature</div>
+    <div id="link-mission-info" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;font-size:0.88rem;"></div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Lien à envoyer au client</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="link-url" readonly style="font-size:0.75rem;font-family:var(--mono);color:var(--accent)">
+        <button class="btn btn-accent btn-sm" onclick="doCopyLink()">📋 Copier</button>
+      </div>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:14px;font-size:0.82rem;color:var(--muted);margin-bottom:16px">
+      💡 Envoyez ce lien par email, SMS ou WhatsApp à votre client.<br>
+      Il pourra consulter la mission et signer électroniquement sans créer de compte.
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="doCopyLink()">📋 Copier le lien</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-link')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE SIGNATURE (affichée quand token dans URL) -->
+<div id="signPage" style="display:none;min-height:100vh;background:var(--bg);">
+  <div style="max-width:600px;margin:0 auto;padding:40px 20px;">
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">🌙</div>
+      <div style="font-family:var(--mono);font-size:1.1rem;color:var(--accent);font-weight:700;">THE NIGHT</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-top:4px;">Plateforme de services et réception de nuit</div>
+    </div>
+
+    <div id="sign-content">
+      <!-- rempli dynamiquement -->
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Ordre de Mission -->
+<div class="overlay" id="modal-ordre">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-title" id="modal-ordre-title">📄 Nouvel ordre de mission</div>
+    <input type="hidden" id="ordre-edit-id">
+    <div class="form-grid">
+      <div class="form-group full"><label>Hôtel *</label><select id="o-hotel" onchange="fillOrdreFromHotel()"></select></div>
+      <div class="form-group full"><label>Mission liée (optionnel)</label><select id="o-mission"><option value="">— Aucune —</option></select></div>
+      <div class="form-group"><label>Date *</label><input type="date" id="o-debut"></div>
+      <div class="form-group"><label>Heure début</label><input type="time" id="o-hdebut" value="22:00"></div>
+      <div class="form-group"><label>Heure fin</label><input type="time" id="o-hfin" value="07:00"></div>
+      <div class="form-group"><label>Tarif horaire (€)</label><input type="number" id="o-tarif" step="0.01" min="0" value="0" oninput="calcOrdreTotal()"></div>
+      <div class="form-group"><label>Nb nuits estimées</label><input type="number" id="o-nuits" min="1" value="1" oninput="calcOrdreTotal()"></div>
+      <div class="form-group full"><label>Description de la mission</label><textarea id="o-desc" placeholder="Accueil clients tardifs, rondes, buffet petit-déjeuner...">Accueil des clients en arrivée tardive, gestion des réservations, rondes de sécurité, préparation du buffet petit-déjeuner.</textarea></div>
+      <div class="form-group full"><label>Conditions particulières</label><textarea id="o-conditions" placeholder="Tenue professionnelle, badge...">Tenue professionnelle exigée. Respect des consignes de sécurité de l'établissement.</textarea></div>
+    </div>
+    <div class="total-box"><div class="tl">Montant estimé</div><div class="ta" id="o-total-display">0,00 €</div></div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveOrdre()">💾 Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-ordre')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Contrat -->
+<div class="overlay" id="modal-contrat">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-title" id="modal-contrat-title">📝 Nouveau contrat de prestation</div>
+    <input type="hidden" id="contrat-edit-id">
+    <div class="form-grid">
+      <div class="form-group full"><label>Hôtel *</label><select id="c-hotel"></select></div>
+      <div class="form-group"><label>Date début *</label><input type="date" id="c-debut"></div>
+      <div class="form-group"><label>Date fin</label><input type="date" id="c-fin"></div>
+      <div class="form-group"><label>Tarif horaire (€) *</label><input type="number" id="c-tarif" step="0.01" min="0" value="0"></div>
+      <div class="form-group"><label>Nb nuits/semaine estimé</label><input type="number" id="c-nuits-semaine" min="1" value="1"></div>
+      <div class="form-group"><label>Heure début habituelle</label><input type="time" id="c-hdebut" value="22:00"></div>
+      <div class="form-group"><label>Heure fin habituelle</label><input type="time" id="c-hfin" value="07:00"></div>
+      <div class="form-group full"><label>Objet du contrat</label><textarea id="c-objet">Prestation de services de réception de nuit en qualité d'auto-entrepreneur. Le prestataire assure l'accueil des clients, la gestion des arrivées tardives, les rondes de sécurité et la préparation du buffet petit-déjeuner.</textarea></div>
+      <div class="form-group full"><label>Conditions générales</label><textarea id="c-conditions" style="min-height:100px">Le prestataire s'engage à respecter les consignes de l'établissement et à maintenir la confidentialité des informations. Facturation mensuelle sur présentation de facture. Délai de paiement : 30 jours. Résiliation avec préavis de 15 jours.</textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="saveContrat()">💾 Enregistrer</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-contrat')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Lien universel -->
+<div class="overlay" id="modal-send-link">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title">🔗 Lien client — Signer &amp; Payer</div>
+    <div id="send-link-info" style="background:var(--bg3);border-radius:12px;padding:16px;margin-bottom:16px;font-size:0.88rem;"></div>
+    <div class="form-group" style="margin-bottom:16px">
+      <label>Lien unique à envoyer au client</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="send-link-url" readonly style="font-size:0.72rem;font-family:var(--mono);color:var(--accent)">
+        <button class="btn btn-accent btn-sm" onclick="doCopySendLink()">📋 Copier</button>
+      </div>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:14px;font-size:0.82rem;color:var(--muted);margin-bottom:16px;line-height:1.8">
+      <strong style="color:var(--text)">Ce lien permet à votre client de :</strong><br>
+      ✍️ &nbsp;Lire et signer le document électroniquement<br>
+      💳 &nbsp;Régler la facture par carte bancaire (Stripe)<br>
+      🏦 &nbsp;Ou payer par virement avec votre RIB affiché<br>
+      📋 &nbsp;Conserver une copie du document signé
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-green" onclick="doCopySendLink()">📋 Copier le lien</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-send-link')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<div class="toast" id="toast"></div>
+<script>
+
+
+
+// ═══════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════
+const ld = (k,d=[]) => { try{return JSON.parse(localStorage.getItem(k))||d;}catch{return d;} };
+const sd = (k,v) => localStorage.setItem(k,JSON.stringify(v));
+
+let hotels = ld('ot_hotels');
+let missions = ld('ot_missions');
+let factures = ld('ot_factures');
+let messages = ld('ot_messages');
+let nextMId = ld('ot_mid',1);
+let nextFId = ld('ot_fid',1);
+let nextMsgId = ld('ot_msgid',1);
+let nextHId = ld('ot_hid',1);
+let currentHotel = null;
+
+function persist(){
+  sd('ot_hotels',hotels); sd('ot_missions',missions);
+  sd('ot_factures',factures); sd('ot_messages',messages);
+  sd('ot_mid',nextMId); sd('ot_fid',nextFId);
+  sd('ot_msgid',nextMsgId); sd('ot_hid',nextHId);
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+function switchTab(t){
+  document.querySelectorAll('.login-tab').forEach((b,i)=>b.classList.toggle('active',i===(t==='admin'?0:1)));
+  document.getElementById('tab-admin').classList.toggle('active',t==='admin');
+  document.getElementById('tab-hotel').classList.toggle('active',t==='hotel');
+}
+
+function loginAdmin(){
+  const u=document.getElementById('admin-user').value;
+  const p=document.getElementById('admin-pass').value;
+  if(u==='jacques'&&p==='osotek2026'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('appScreen').style.display='block';
+    renderDashboard();
+  } else {
+    document.getElementById('admin-err').textContent='Identifiant ou mot de passe incorrect';
+  }
+}
+
+function loginHotel(){
+  const nom=document.getElementById('hotel-name').value.trim();
+  const mdp=document.getElementById('hotel-pass').value;
+  const h=hotels.find(x=>x.nom.toLowerCase()===nom.toLowerCase()&&x.mdp===mdp);
+  if(h){
+    currentHotel=h;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('hotelScreen').style.display='block';
+    document.getElementById('hotel-welcome').textContent=h.nom;
+    document.getElementById('hotel-display').textContent='🏨 '+h.nom+' — Déco';
+    renderHotelSpace();
+  } else {
+    document.getElementById('hotel-err').textContent='Hôtel ou mot de passe incorrect';
+  }
+}
+
+function logout(){
+  currentHotel=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('hotelScreen').style.display='none';
+  document.getElementById('admin-pass').value='';
+  document.getElementById('hotel-pass').value='';
+  document.getElementById('admin-err').textContent='';
+  document.getElementById('hotel-err').textContent='';
+}
+
+// ═══════════════════════════════════════
+// UTILITAIRES
+// ═══════════════════════════════════════
+const today=()=>new Date().toISOString().split('T')[0];
+const fmtD=d=>{if(!d)return'—';const[y,m,j]=d.split('-');return`${j}/${m}/${y}`;};
+const fmtE=n=>(parseFloat(n)||0).toFixed(2).replace('.',',')+' €';
+const fmtH=h=>{const hh=Math.floor(h),mm=Math.round((h-hh)*60);return`${hh}h${mm?String(mm).padStart(2,'0'):''}`};
+
+function calcDuree(debut,fin){
+  if(!debut||!fin)return 0;
+  let [dh,dm]=debut.split(':').map(Number);
+  let [fh,fm]=fin.split(':').map(Number);
+  let diff=(fh*60+fm)-(dh*60+dm);
+  if(diff<0)diff+=24*60;
+  return diff/60;
+}
+
+function toast(msg,type='success'){
+  const el=document.getElementById('toast');
+  if(!el)return;
+  el.textContent=msg; el.className='toast '+type+' show';
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-mission'){populateHotelSelect('m-hotel');calcMissionTotal();}
+  if(id==='modal-facture'){populateHotelSelect('f-hotel');document.getElementById('f-date').value=today();fillMissionsFacture();}
+  if(id==='modal-hotel'){
+    document.getElementById('hotel-edit-id').value='';
+    ['h-nom','h-contact','h-tel','h-email','h-adresse','h-notes','h-mdp'].forEach(i=>{
+      const el=document.getElementById(i);
+      if(el)el.value='';
+    });
+    const tarif=document.getElementById('h-tarif-hab');
+    if(tarif)tarif.value=0;
+  }
+  if(id==='modal-ordre'){
+    populateHotelSelect('o-hotel');
+    const eid=document.getElementById('ordre-edit-id');
+    if(eid&&!eid.value){
+      document.getElementById('o-debut').value=today();
+      document.getElementById('o-nuits').value=1;
+      calcOrdreTotal();
+    }
+  }
+  if(id==='modal-contrat'){
+    populateHotelSelect('c-hotel');
+    const eid=document.getElementById('contrat-edit-id');
+    if(eid&&!eid.value) document.getElementById('c-debut').value=today();
+  }
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+function badge(s){
+  const m={'confirmée':'b-blue','en attente':'b-gold','effectuée':'b-green','annulée':'b-red','payée':'b-green','en cours':'b-blue'};
+  return`<span class="badge ${m[s]||'b-gray'}">${s}</span>`;
+}
+
+function populateHotelSelect(id){
+  const el=document.getElementById(id);
+  el.innerHTML='<option value="">— Sélectionner un hôtel —</option>'+
+    hotels.map(h=>`<option value="${h.id}">${h.nom}</option>`).join('');
+}
+
+function updateMsgNotif(){
+  const unread=messages.filter(m=>m.to==='admin'&&!m.read).length;
+  const badge=document.getElementById('notif-count');
+  const s=document.getElementById('s-msgs');
+  if(badge){badge.textContent=unread;badge.style.display=unread?'inline-flex':'none';}
+  if(s)s.textContent=unread;
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  const renders={dashboard:renderDashboard,missions:renderMissions,facturation:renderFactures,
+    heures:renderHeures,revenus:renderRevenus,messages:renderMessages,hotels:renderHotels,
+    documents:()=>{if(typeof renderDocuments!=='undefined')renderDocuments();},
+    contrats:()=>{if(typeof renderContrats!=='undefined')renderContrats();}
+  };
+  if(renders[id])renders[id]();
+}
+
+// ═══════════════════════════════════════
+// HORLOGE
+// ═══════════════════════════════════════
+function updateClock(){
+  const n=new Date();
+  const t=n.toLocaleTimeString('fr-FR');
+  ['clock','clock-hotel'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=t;});
+  const d=document.getElementById('today-display');
+  if(d)d.textContent=n.toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+updateClock();setInterval(updateClock,1000);
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function renderDashboard(){
+  const mois=new Date().toISOString().slice(0,7);
+  const mMois=missions.filter(m=>m.date&&m.date.startsWith(mois)&&m.statut!=='annulée');
+  const hMois=mMois.reduce((a,m)=>a+calcDuree(m.debut,m.fin),0);
+  const caMois=mMois.reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+  const impayees=factures.filter(f=>f.statut==='en attente').length;
+
+  document.getElementById('s-missions-mois').textContent=mMois.length;
+  document.getElementById('s-heures-mois').textContent=fmtH(hMois);
+  document.getElementById('s-ca-mois').textContent=Math.round(caMois)+'€';
+  document.getElementById('s-impayees').textContent=impayees;
+  updateMsgNotif();
+
+  // Prochaines missions
+  const prochaines=[...missions].filter(m=>m.date>=today()&&m.statut!=='annulée').sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5);
+  const dm=document.getElementById('dash-missions');
+  dm.innerHTML=prochaines.length?prochaines.map(m=>{
+    const h=hotels.find(x=>x.id===m.hotelId);
+    return`<div class="tl-item">
+      <div class="tl-time">${fmtD(m.date)}</div>
+      <div class="tl-content">
+        <div style="display:flex;gap:8px;align-items:center">${badge(m.statut)}<strong>${h?h.nom:'—'}</strong></div>
+        <div class="tl-meta">${m.debut} → ${m.fin} | ${fmtH(calcDuree(m.debut,m.fin))} | ${fmtE(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0))}</div>
+      </div>
+    </div>`;}).join(''):'<div class="empty"><div class="ei">📅</div>Aucune mission à venir</div>';
+
+  // Messages récents
+  const recentMsgs=[...messages].sort((a,b)=>b.id-a.id).slice(0,4);
+  const dms=document.getElementById('dash-msgs');
+  dms.innerHTML=recentMsgs.length?recentMsgs.map(m=>`
+    <div class="msg-item ${m.to==='admin'&&!m.read?'unread':''}">
+      <div class="msg-header">
+        <span class="msg-from">${m.from}</span>
+        <span class="msg-date">${fmtD(m.date)}</span>
+      </div>
+      <div style="font-size:0.8rem;font-weight:700;color:var(--text)">${m.sujet||'Sans objet'}</div>
+      <div class="msg-body" style="font-size:0.8rem">${m.corps.slice(0,80)}${m.corps.length>80?'...':''}</div>
+    </div>`).join(''):'<div class="empty"><div class="ei">📭</div>Aucun message</div>';
+
+  // Chart CA 6 mois
+  renderMiniChart();
+}
+
+function renderMiniChart(){
+  const months=[];
+  for(let i=5;i>=0;i--){
+    const d=new Date(); d.setMonth(d.getMonth()-i);
+    months.push(d.toISOString().slice(0,7));
+  }
+  const maxCA=Math.max(...months.map(m=>missions.filter(x=>x.date&&x.date.startsWith(m)).reduce((a,x)=>a+(calcDuree(x.debut,x.fin)*parseFloat(x.tarif||0)),0)),1);
+  const charts=['chart-ca','chart-mensuel'];
+  charts.forEach(cid=>{
+    const el=document.getElementById(cid);
+    if(!el)return;
+    el.innerHTML=months.map(m=>{
+      const ca=missions.filter(x=>x.date&&x.date.startsWith(m)).reduce((a,x)=>a+(calcDuree(x.debut,x.fin)*parseFloat(x.tarif||0)),0);
+      const [y,mo]=m.split('-');
+      const mNames=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+      return`<div class="chart-row">
+        <div class="chart-label">${mNames[parseInt(mo)-1]} ${y.slice(2)}</div>
+        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(ca/maxCA*100)}%"></div></div>
+        <div class="chart-val">${Math.round(ca)} €</div>
+      </div>`;}).join('');
+  });
+}
+
+// ═══════════════════════════════════════
+// MISSIONS
+// ═══════════════════════════════════════
+function calcMissionTotal(){
+  const debut=document.getElementById('m-debut').value;
+  const fin=document.getElementById('m-fin').value;
+  const tarif=parseFloat(document.getElementById('m-tarif').value)||0;
+  const duree=calcDuree(debut,fin);
+  document.getElementById('m-total-display').textContent=fmtE(duree*tarif);
+}
+document.getElementById('m-debut').addEventListener('input',calcMissionTotal);
+document.getElementById('m-fin').addEventListener('input',calcMissionTotal);
+
+function saveMission(){
+  const hotelId=parseInt(document.getElementById('m-hotel').value);
+  const date=document.getElementById('m-date').value;
+  const debut=document.getElementById('m-debut').value;
+  const fin=document.getElementById('m-fin').value;
+
+  if(!hotelId||isNaN(hotelId)){toast('⚠️ Sélectionnez un hôtel — créez d\'abord un hôtel dans la rubrique 🏨 Hôtels','warning');return;}
+  if(!date){toast('⚠️ La date est obligatoire','warning');return;}
+  if(!debut||!fin){toast('⚠️ Les heures de début et fin sont obligatoires','warning');return;}
+
+  const editId=parseInt(document.getElementById('mission-edit-id').value);
+  const data={
+    hotelId,date,debut,fin,
+    tarif:parseFloat(document.getElementById('m-tarif').value)||0,
+    statut:document.getElementById('m-statut').value,
+    notes:document.getElementById('m-notes').value||''
+  };
+  if(editId&&!isNaN(editId)){
+    const idx=missions.findIndex(m=>m.id===editId);
+    if(idx>=0){missions[idx]={...missions[idx],...data};}
+    toast('✅ Mission modifiée !');
+  } else {
+    data.id=nextMId++;
+    missions.push(data);
+    toast('✅ Mission créée !');
+  }
+  persistAll();closeModal('modal-mission');renderMissions();renderDashboard();
+}
+
+function renderMissions(){
+  const search=document.getElementById('search-mission').value.toLowerCase();
+  const statut=document.getElementById('filter-mission-statut').value;
+  let list=[...missions].filter(m=>{
+    const h=hotels.find(x=>x.id===m.hotelId);
+    const matchH=!search||(h&&h.nom.toLowerCase().includes(search));
+    const matchS=!statut||m.statut===statut;
+    return matchH&&matchS;
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+
+  const tbody=document.getElementById('tbody-missions');
+  const empty=document.getElementById('missions-empty');
+  if(!list.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=list.map(m=>{
+    const h=hotels.find(x=>x.id===m.hotelId);
+    const duree=calcDuree(m.debut,m.fin);
+    const total=duree*parseFloat(m.tarif||0);
+    return`<tr>
+      <td style="color:var(--muted);font-family:var(--mono);font-size:0.75rem">#${m.id}</td>
+      <td><strong>${h?h.nom:'—'}</strong></td>
+      <td style="font-family:var(--mono)">${fmtD(m.date)}</td>
+      <td style="font-family:var(--mono)">${m.debut} → ${m.fin}</td>
+      <td style="font-family:var(--mono)">${fmtH(duree)}</td>
+      <td style="font-family:var(--mono)">${fmtE(m.tarif)}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${fmtE(total)}</td>
+      <td>${badge(m.statut)}</td>
+      <td>${m.signed
+        ? `<span class="badge b-green">✅ Signé</span><br><span style="font-size:0.7rem;color:var(--muted)">${m.signedBy||''}<br>${m.signedAt||''}</span>`
+        : m.validToken
+          ? `<span class="badge b-gold">⏳ En attente</span><br><button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="copyLink(${m.id})">🔗 Copier lien</button>`
+          : `<button class="btn btn-accent btn-sm" onclick="genLink(${m.id})">🔗 Générer lien</button>`
+      }</td>
+      <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="editMission(${m.id})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="deleteMission(${m.id})">🗑️</button>
+      </div></td>
+    </tr>`;}).join('');
+}
+
+function editMission(id){
+  const m=missions.find(x=>x.id===id);if(!m)return;
+  document.getElementById('modal-mission-title').textContent='✏️ Modifier la mission';
+  document.getElementById('mission-edit-id').value=id;
+  populateHotelSelect('m-hotel');
+  document.getElementById('m-hotel').value=m.hotelId;
+  document.getElementById('m-date').value=m.date;
+  document.getElementById('m-debut').value=m.debut;
+  document.getElementById('m-fin').value=m.fin;
+  document.getElementById('m-tarif').value=m.tarif;
+  document.getElementById('m-statut').value=m.statut;
+  document.getElementById('m-notes').value=m.notes||'';
+  calcMissionTotal();
+  openModal('modal-mission');
+}
+
+function deleteMission(id){
+  if(!confirm('Supprimer cette mission ?'))return;
+  missions=missions.filter(m=>m.id!==id);
+  persist();renderMissions();renderDashboard();toast('🗑️ Mission supprimée','warning');
+}
+
+// ═══════════════════════════════════════
+// FACTURATION
+// ═══════════════════════════════════════
+function fillMissionsFacture(){
+  const hid=parseInt(document.getElementById('f-hotel').value);
+  const sel=document.getElementById('f-missions');
+  sel.innerHTML=missions.filter(m=>m.hotelId===hid&&m.statut==='effectuée')
+    .map(m=>`<option value="${m.id}">${fmtD(m.date)} ${m.debut}-${m.fin} (${fmtH(calcDuree(m.debut,m.fin))})</option>`).join('');
+  calcFactureTotal();
+}
+
+function calcFactureTotal(){
+  const h=parseFloat(document.getElementById('f-heures').value)||0;
+  const t=parseFloat(document.getElementById('f-tarif').value)||0;
+  const tva=parseFloat(document.getElementById('f-tva').value)||0;
+  const ht=h*t;
+  const tvaMontant=ht*tva/100;
+  const ttc=ht+tvaMontant;
+  document.getElementById('f-ht').textContent=fmtE(ht);
+  document.getElementById('f-tva-montant').textContent=fmtE(tvaMontant);
+  document.getElementById('f-total').textContent=fmtE(ttc);
+}
+
+function saveFacture(){
+  const hid=parseInt(document.getElementById('f-hotel').value);
+  if(!hid){toast('⚠️ Sélectionnez un hôtel','warning');return;}
+  const h=parseFloat(document.getElementById('f-heures').value)||0;
+  const t=parseFloat(document.getElementById('f-tarif').value)||0;
+  const tva=parseFloat(document.getElementById('f-tva').value)||0;
+  const ht=h*t;
+  const sel=document.getElementById('f-missions');
+  const mIds=Array.from(sel.selectedOptions).map(o=>parseInt(o.value));
+  const f={id:nextFId++,hotelId:hid,
+    num:document.getElementById('f-num').value||'F-'+String(nextFId-1).padStart(4,'0'),
+    date:document.getElementById('f-date').value,
+    missionsIds:mIds,heures:h,tarif:t,tva,
+    ht,tvaMontant:ht*tva/100,ttc:ht+(ht*tva/100),
+    statut:document.getElementById('f-statut').value,
+    notes:document.getElementById('f-notes').value
+  };
+  if(!f.token) f.token = genToken2();
+  factures.push(f);
+  persistAll();closeModal('modal-facture');renderFactures();renderDashboard();
+  toast('✅ Facture créée !');
+}
+
+function renderFactures(){
+  const tbody=document.getElementById('tbody-factures');
+  const empty=document.getElementById('factures-empty');
+  if(!factures.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=[...factures].reverse().map(f=>{
+    const h=hotels.find(x=>x.id===f.hotelId);
+    return`<tr>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--accent)">${f.num}</td>
+      <td><strong>${h?h.nom:'—'}</strong></td>
+      <td style="font-family:var(--mono);font-size:0.8rem">${fmtD(f.date)}</td>
+      <td>${f.missionsIds?f.missionsIds.length:0} mission(s)</td>
+      <td style="font-family:var(--mono)">${fmtH(f.heures||0)}</td>
+      <td style="font-family:var(--mono)">${fmtE(f.ht)}</td>
+      <td style="font-family:var(--mono)">${fmtE(f.tvaMontant)}</td>
+      <td style="font-family:var(--mono);color:var(--accent);font-weight:700">${fmtE(f.ttc)}</td>
+      <td>${badge(f.statut)}${f.statut==='payée'?`<br><span style="font-size:0.72rem;color:var(--muted)">${f.modePaiement||''}</span>`:''}</td>
+      <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-accent btn-sm" onclick="sendFactureGmail(${f.id})">📧 Gmail</button>
+        <button class="btn btn-gold btn-sm" onclick="downloadFacturePDF(${f.id})">📄 PDF</button>
+        <button class="btn btn-ghost btn-sm" onclick="sendDocLink('facture',${f.id})">🔗 Lien</button>
+        ${f.statut==='en attente'?`<button class="btn btn-green btn-sm" onclick="openPaiement(${f.id})">💰</button>`:''}
+        <button class="btn btn-red btn-sm" onclick="deleteFacture(${f.id})">🗑️</button>
+      </div></td>
+    </tr>`;}).join('');
+}
+
+function openPaiement(id){
+  document.getElementById('pay-id').value=id;
+  document.getElementById('pay-date').value=today();
+  openModal('modal-paiement');
+}
+function confirmPaiement(){
+  const id=parseInt(document.getElementById('pay-id').value);
+  const f=factures.find(x=>x.id===id);
+  if(f){f.statut='payée';f.modePaiement=document.getElementById('pay-mode').value;f.datePaiement=document.getElementById('pay-date').value;}
+  persist();closeModal('modal-paiement');renderFactures();renderDashboard();toast('💰 Paiement enregistré !');
+}
+function deleteFacture(id){
+  if(!confirm('Supprimer cette facture ?'))return;
+  factures=factures.filter(f=>f.id!==id);
+  persist();renderFactures();renderDashboard();toast('🗑️ Facture supprimée','warning');
+}
+
+// ═══════════════════════════════════════
+// HEURES
+// ═══════════════════════════════════════
+function renderHeures(){
+  const sel=document.getElementById('filter-heures-mois');
+  if(!sel.options.length){
+    const months=new Set(missions.map(m=>m.date?m.date.slice(0,7):null).filter(Boolean));
+    const now=new Date().toISOString().slice(0,7);
+    months.add(now);
+    [...months].sort().reverse().forEach(m=>{
+      const o=document.createElement('option');
+      o.value=m;const[y,mo]=m.split('-');
+      const mn=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+      o.textContent=mn[parseInt(mo)-1]+' '+y;
+      sel.appendChild(o);
+    });
+  }
+  const mois=sel.value||new Date().toISOString().slice(0,7);
+  const list=missions.filter(m=>m.date&&m.date.startsWith(mois)&&m.statut!=='annulée');
+  const totalH=list.reduce((a,m)=>a+calcDuree(m.debut,m.fin),0);
+  const totalCA=list.reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+
+  document.getElementById('heures-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num">${list.length}</div><div class="stat-label">Missions</div></div>
+    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-num green">${fmtH(totalH)}</div><div class="stat-label">Total heures</div></div>
+    <div class="stat-card"><div class="stat-icon">💶</div><div class="stat-num gold">${Math.round(totalCA)} €</div><div class="stat-label">CA du mois</div></div>
+    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-num">${totalH>0?fmtE(totalCA/totalH).replace(' €','')+' €/h':'—'}</div><div class="stat-label">Taux horaire moyen</div></div>`;
+
+  const tbody=document.getElementById('tbody-heures');
+  const empty=document.getElementById('heures-empty');
+  if(!list.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=[...list].sort((a,b)=>a.date.localeCompare(b.date)).map(m=>{
+    const h=hotels.find(x=>x.id===m.hotelId);
+    const duree=calcDuree(m.debut,m.fin);
+    const nuit=m.debut>='22:00'||m.fin<='07:00';
+    return`<tr>
+      <td style="font-family:var(--mono)">${fmtD(m.date)}</td>
+      <td><strong>${h?h.nom:'—'}</strong></td>
+      <td style="font-family:var(--mono)">${m.debut}</td>
+      <td style="font-family:var(--mono)">${m.fin}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${fmtH(duree)}</td>
+      <td style="font-family:var(--mono)">${fmtE(m.tarif)}</td>
+      <td style="font-family:var(--mono);color:var(--gold)">${fmtE(duree*parseFloat(m.tarif||0))}</td>
+      <td>${nuit?'<span class="badge b-blue">🌙 Nuit</span>':'—'}</td>
+    </tr>`;}).join('');
+}
+
+// ═══════════════════════════════════════
+// REVENUS
+// ═══════════════════════════════════════
+function renderRevenus(){
+  const totalCA=missions.filter(m=>m.statut!=='annulée').reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+  const totalPaye=factures.filter(f=>f.statut==='payée').reduce((a,f)=>a+(f.ttc||0),0);
+  const totalAttente=factures.filter(f=>f.statut==='en attente').reduce((a,f)=>a+(f.ttc||0),0);
+  const totalH=missions.filter(m=>m.statut!=='annulée').reduce((a,m)=>a+calcDuree(m.debut,m.fin),0);
+
+  document.getElementById('revenus-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">💶</div><div class="stat-num gold">${Math.round(totalCA)} €</div><div class="stat-label">CA Total</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num green">${Math.round(totalPaye)} €</div><div class="stat-label">Encaissé</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-num red">${Math.round(totalAttente)} €</div><div class="stat-label">En attente</div></div>
+    <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-num">${fmtH(totalH)}</div><div class="stat-label">Total heures</div></div>`;
+
+  renderMiniChart();
+
+  // Chart par hôtel
+  const byHotel=hotels.map(h=>{
+    const ca=missions.filter(m=>m.hotelId===h.id&&m.statut!=='annulée').reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+    return{nom:h.nom,ca};
+  }).filter(x=>x.ca>0).sort((a,b)=>b.ca-a.ca);
+  const maxH=Math.max(...byHotel.map(x=>x.ca),1);
+  const chH=document.getElementById('chart-hotels');
+  if(chH)chH.innerHTML=byHotel.length?byHotel.map(x=>`
+    <div class="chart-row">
+      <div class="chart-label" style="min-width:100px">${x.nom.slice(0,12)}</div>
+      <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${Math.round(x.ca/maxH*100)}%"></div></div>
+      <div class="chart-val">${Math.round(x.ca)} €</div>
+    </div>`).join(''):'<div class="empty"><div class="ei">📊</div>Aucune donnée</div>';
+
+  // Tableau mensuel
+  const months=new Set(missions.map(m=>m.date?m.date.slice(0,7):null).filter(Boolean));
+  const mn=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const tbody=document.getElementById('tbody-revenus');
+  tbody.innerHTML=[...months].sort().reverse().map(mois=>{
+    const mm=missions.filter(m=>m.date&&m.date.startsWith(mois)&&m.statut!=='annulée');
+    const ca=mm.reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+    const hh=mm.reduce((a,m)=>a+calcDuree(m.debut,m.fin),0);
+    const [y,mo]=mois.split('-');
+    const paye=factures.filter(f=>f.statut==='payée'&&f.date&&f.date.startsWith(mois)).reduce((a,f)=>a+(f.ttc||0),0);
+    const att=factures.filter(f=>f.statut==='en attente'&&f.date&&f.date.startsWith(mois)).reduce((a,f)=>a+(f.ttc||0),0);
+    return`<tr>
+      <td style="font-family:var(--mono)">${mn[parseInt(mo)-1]} ${y}</td>
+      <td>${mm.length}</td>
+      <td style="font-family:var(--mono)">${fmtH(hh)}</td>
+      <td style="font-family:var(--mono);color:var(--accent)">${fmtE(ca)}</td>
+      <td style="font-family:var(--mono);color:var(--green)">${fmtE(paye)}</td>
+      <td style="font-family:var(--mono);color:var(--gold)">${fmtE(att)}</td>
+    </tr>`;}).join('');
+}
+
+// ═══════════════════════════════════════
+// MESSAGES
+// ═══════════════════════════════════════
+function renderMessages(){
+  populateHotelSelect('msg-to');
+  const msgs=[...messages].sort((a,b)=>b.id-a.id);
+  const inbox=document.getElementById('msg-inbox');
+  const empty=document.getElementById('msg-inbox-empty');
+  msgs.forEach(m=>{if(m.to==='admin')m.read=true;});
+  persist();updateMsgNotif();
+  if(!msgs.length){inbox.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  inbox.innerHTML=msgs.map(m=>`
+    <div class="msg-item ${m.from!=='Jacques'&&!m.read?'unread':''}">
+      <div class="msg-header">
+        <span class="msg-from">${m.from}</span>
+        <span class="msg-date">${fmtD(m.date)}</span>
+      </div>
+      <div style="font-size:0.82rem;font-weight:700;color:var(--text);margin-bottom:4px">${m.sujet||'Sans objet'}</div>
+      <div class="msg-body">${m.corps}</div>
+      ${m.reply?`<div class="msg-reply">↩️ <em>${m.reply}</em></div>`:''}
+      ${m.to==='admin'?`<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="replyMsg(${m.id})">↩️ Répondre</button>`:''}
+    </div>`).join('');
+}
+
+function replyMsg(id){
+  const rep=prompt('Votre réponse :');
+  if(!rep)return;
+  const m=messages.find(x=>x.id===id);
+  if(m)m.reply=rep;
+  persist();renderMessages();toast('✅ Réponse envoyée !');
+}
+
+function sendMessage(){
+  const to=document.getElementById('msg-to').value;
+  if(!to){toast('⚠️ Sélectionnez un destinataire','warning');return;}
+  const h=hotels.find(x=>x.id===parseInt(to));
+  const corps=document.getElementById('msg-corps').value.trim();
+  if(!corps){toast('⚠️ Écrivez un message','warning');return;}
+  messages.push({id:nextMsgId++,from:'Jacques',to:parseInt(to),
+    toNom:h?h.nom:'—',sujet:document.getElementById('msg-sujet').value,
+    corps,date:today(),read:false});
+  persist();
+  document.getElementById('msg-corps').value='';
+  document.getElementById('msg-sujet').value='';
+  renderMessages();toast('✅ Message envoyé !');
+}
+
+// ═══════════════════════════════════════
+// HOTELS
+// ═══════════════════════════════════════
+function saveHotel(){
+  const nom=document.getElementById('h-nom').value.trim();
+  if(!nom){toast('⚠️ Le nom de l\'hôtel est obligatoire','warning');return;}
+  const mdp=document.getElementById('h-mdp').value.trim();
+  if(!mdp){toast('⚠️ Le mot de passe est obligatoire','warning');return;}
+  const editId=parseInt(document.getElementById('hotel-edit-id').value);
+  const data={
+    nom,
+    contact:document.getElementById('h-contact').value||'',
+    tel:document.getElementById('h-tel').value||'',
+    email:document.getElementById('h-email').value||'',
+    adresse:document.getElementById('h-adresse').value||'',
+    tarifHab:parseFloat(document.getElementById('h-tarif-hab').value)||0,
+    mdp,
+    notes:document.getElementById('h-notes').value||''
+  };
+  if(editId&&!isNaN(editId)){
+    const idx=hotels.findIndex(h=>h.id===editId);
+    if(idx>=0){hotels[idx]={...hotels[idx],...data};}
+    toast('✅ Hôtel modifié !');
+  } else {
+    data.id=nextHId++;
+    hotels.push(data);
+    toast('✅ Hôtel ajouté !');
+  }
+  persistAll();
+  closeModal('modal-hotel');
+  renderHotels();
+}
+
+function renderHotels(){
+  const grid=document.getElementById('hotels-grid');
+  const empty=document.getElementById('hotels-empty');
+  if(!hotels.length){grid.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  grid.innerHTML=hotels.map(h=>{
+    const nbM=missions.filter(m=>m.hotelId===h.id).length;
+    const ca=missions.filter(m=>m.hotelId===h.id&&m.statut!=='annulée').reduce((a,m)=>a+(calcDuree(m.debut,m.fin)*parseFloat(m.tarif||0)),0);
+    return`<div class="card" style="margin-bottom:0">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+        <div>
+          <div style="font-size:1rem;font-weight:800;color:#fff">${h.nom}</div>
+          <div style="font-size:0.78rem;color:var(--muted)">${h.adresse||''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="editHotel(${h.id})">✏️</button>
+          <button class="btn btn-red btn-sm" onclick="deleteHotel(${h.id})">🗑️</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bg3);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:1.1rem;color:var(--accent)">${nbM}</div>
+          <div style="font-size:0.72rem;color:var(--muted)">missions</div>
+        </div>
+        <div style="background:var(--bg3);padding:10px;border-radius:8px;text-align:center">
+          <div style="font-family:var(--mono);font-size:1.1rem;color:var(--gold)">${Math.round(ca)} €</div>
+          <div style="font-size:0.72rem;color:var(--muted)">CA total</div>
+        </div>
+      </div>
+      ${h.contact?`<div style="font-size:0.8rem;color:var(--muted)">👤 ${h.contact}</div>`:''}
+      ${h.tel?`<div style="font-size:0.8rem;color:var(--muted)">📞 ${h.tel}</div>`:''}
+      ${h.email?`<div style="font-size:0.8rem;color:var(--muted)">📧 ${h.email}</div>`:''}
+      <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--muted)">
+        🔑 MDP accès : <code style="color:var(--accent)">${h.mdp}</code> | Tarif hab. : ${fmtE(h.tarifHab)}/h
+      </div>
+    </div>`;}).join('');
+}
+
+function editHotel(id){
+  const h=hotels.find(x=>x.id===id);if(!h)return;
+  document.getElementById('hotel-edit-id').value=id;
+  document.getElementById('h-nom').value=h.nom;
+  document.getElementById('h-contact').value=h.contact||'';
+  document.getElementById('h-tel').value=h.tel||'';
+  document.getElementById('h-email').value=h.email||'';
+  document.getElementById('h-adresse').value=h.adresse||'';
+  document.getElementById('h-tarif-hab').value=h.tarifHab||0;
+  document.getElementById('h-mdp').value=h.mdp||'';
+  document.getElementById('h-notes').value=h.notes||'';
+  openModal('modal-hotel');
+}
+
+function deleteHotel(id){
+  if(!confirm('Supprimer cet hôtel ?'))return;
+  hotels=hotels.filter(h=>h.id!==id);
+  persistAll();renderHotels();toast('🗑️ Hôtel supprimé','warning');
+}
+
+// ═══════════════════════════════════════
+// ESPACE HOTEL
+// ═══════════════════════════════════════
+function hotelReserve(){
+  if(!currentHotel)return;
+  const date=document.getElementById('h-date').value;
+  const debut=document.getElementById('h-debut').value;
+  const fin=document.getElementById('h-fin').value;
+  if(!date||!debut||!fin){toast('⚠️ Remplissez les champs obligatoires','warning');return;}
+  const tarif=parseFloat(document.getElementById('h-tarif').value)||0;
+  const msg=document.getElementById('h-message').value;
+  // Créer la mission
+  missions.push({id:nextMId++,hotelId:currentHotel.id,date,debut,fin,tarif,statut:'en attente',notes:msg});
+  // Envoyer un message à Jacques
+  messages.push({id:nextMsgId++,from:currentHotel.nom,to:'admin',
+    sujet:'Nouvelle demande de mission — '+fmtD(date),
+    corps:`Demande de mission pour le ${fmtD(date)}, ${debut} → ${fin}.\n${msg?'Message : '+msg:''}`,
+    date:today(),read:false});
+  persist();
+  document.getElementById('h-message').value='';
+  renderHotelSpace();
+  toast('✅ Demande envoyée à Jacques !');
+}
+
+function renderHotelSpace(){
+  if(!currentHotel)return;
+  // Missions de cet hôtel
+  const list=missions.filter(m=>m.hotelId===currentHotel.id).sort((a,b)=>b.date.localeCompare(a.date));
+  const tbody=document.getElementById('hotel-missions');
+  const empty=document.getElementById('hotel-missions-empty');
+  if(!list.length){tbody.innerHTML='';empty.style.display='block';}
+  else{
+    empty.style.display='none';
+    tbody.innerHTML=list.map(m=>`<tr>
+      <td style="font-family:var(--mono)">${fmtD(m.date)}</td>
+      <td style="font-family:var(--mono)">${m.debut} → ${m.fin}</td>
+      <td>${badge(m.statut)}</td>
+      <td style="font-family:var(--mono)">${m.tarif>0?fmtE(calcDuree(m.debut,m.fin)*parseFloat(m.tarif)):'—'}</td>
+    </tr>`).join('');
+  }
+  // ── Factures de cet hôtel
+  const factList = factures.filter(f => f.hotelId === currentHotel.id).sort((a,b) => b.id - a.id);
+  const fContainer = document.getElementById('hotel-factures-list');
+  const fEmpty = document.getElementById('hotel-factures-empty');
+  if(!factList.length){
+    fContainer.innerHTML = '';
+    fEmpty.style.display = 'block';
+  } else {
+    fEmpty.style.display = 'none';
+    fContainer.innerHTML = factList.map(f => {
+      if(!f.token){ f.token = genToken2(); persistAll(); }
+      const payLink = window.location.href.split('#')[0] + '#doc=facture_' + f.token;
+      const isPaid = f.statut === 'payée';
+      return `
+        <div style="background:var(--bg3);border:1px solid ${isPaid?'rgba(0,229,160,0.3)':'rgba(255,200,87,0.25)'};border-radius:14px;padding:18px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted)">FACTURE</div>
+              <div style="font-weight:800;color:#fff;font-size:1rem">${f.num}</div>
+              <div style="font-size:0.8rem;color:var(--muted);margin-top:2px">${fmtD(f.date)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:0.72rem;color:var(--muted);margin-bottom:4px">MONTANT TTC</div>
+              <div style="font-family:var(--mono);font-size:1.6rem;font-weight:800;color:${isPaid?'var(--green)':'var(--gold)'}">
+                ${fmtE(f.ttc)}
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;font-size:0.82rem;flex-wrap:wrap">
+            <span style="color:var(--muted)">⏱ ${fmtH(f.heures||0)}</span>
+            <span style="color:var(--muted)">•</span>
+            <span style="color:var(--muted)">${fmtE(f.tarif)}/h</span>
+            ${f.tva>0?`<span style="color:var(--muted)">• TVA ${f.tva}%</span>`:''}
+          </div>
+          ${isPaid
+            ? `<div style="background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);border-radius:10px;padding:12px;text-align:center;font-weight:700;color:var(--green)">
+                ✅ Facture réglée — Merci !
+               </div>`
+            : `<div>
+                <div style="font-size:0.8rem;font-weight:700;color:#fff;margin-bottom:10px">Choisissez votre mode de règlement :</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <a href="https://buy.stripe.com/VOTRE_LIEN_STRIPE" target="_blank" style="text-decoration:none">
+                    <div style="background:linear-gradient(135deg,#635bff,#4f46e5);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer">
+                      <div style="font-size:1.6rem">💳</div>
+                      <div style="flex:1">
+                        <div style="font-weight:800;color:#fff;font-size:0.9rem">Payer par carte bancaire</div>
+                        <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">Visa · Mastercard · CB — Sécurisé Stripe</div>
+                      </div>
+                      <div style="background:rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:8px 14px;font-weight:800;font-size:0.85rem;white-space:nowrap">
+                        Payer ${fmtE(f.ttc)} →
+                      </div>
+                    </div>
+                  </a>
+                  <a href="https://paypal.me/VOTRE_NOM" target="_blank" style="text-decoration:none">
+                    <div style="background:linear-gradient(135deg,#003087,#009cde);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer">
+                      <div style="font-size:1.6rem">🅿️</div>
+                      <div style="flex:1">
+                        <div style="font-weight:800;color:#fff;font-size:0.9rem">Payer via PayPal</div>
+                        <div style="font-size:0.75rem;color:rgba(255,255,255,0.7)">Compte PayPal ou carte bancaire</div>
+                      </div>
+                      <div style="background:rgba(255,255,255,0.2);color:#fff;border-radius:8px;padding:8px 14px;font-weight:800;font-size:0.85rem;white-space:nowrap">
+                        Payer ${fmtE(f.ttc)} →
+                      </div>
+                    </div>
+                  </a>
+                  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                      <div style="font-size:1.4rem">🏦</div>
+                      <div>
+                        <div style="font-weight:700;color:#fff;font-size:0.88rem">Virement bancaire</div>
+                        <div style="font-size:0.75rem;color:var(--muted)">Gratuit · 1 à 3 jours ouvrés</div>
+                      </div>
+                    </div>
+                    <div style="font-size:0.8rem;line-height:2;background:var(--bg3);border-radius:8px;padding:10px 12px">
+                      <div style="display:flex;justify-content:space-between">
+                        <span style="color:var(--muted)">Bénéficiaire</span>
+                        <span style="color:#fff;font-weight:700">QUATRESOLS Jacques</span>
+                      </div>
+                      <div style="display:flex;justify-content:space-between">
+                        <span style="color:var(--muted)">IBAN</span>
+                        <span style="font-family:var(--mono);color:var(--accent);font-size:0.75rem">FR76 XXXX XXXX XXXX XXXX XXXX XXX</span>
+                      </div>
+                      <div style="display:flex;justify-content:space-between">
+                        <span style="color:var(--muted)">BIC</span>
+                        <span style="font-family:var(--mono);color:var(--text)">XXXXXXXX</span>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:4px">
+                        <span style="color:var(--muted)">Référence obligatoire</span>
+                        <span style="font-family:var(--mono);font-weight:800;color:var(--gold)">${f.num}</span>
+                      </div>
+                    </div>
+                    <div style="margin-top:8px;font-size:0.75rem;color:var(--gold)">⚠️ Mentionnez impérativement la référence <strong>${f.num}</strong> dans le libellé</div>
+                  </div>
+                </div>
+              </div>`
+          }
+        </div>`;
+    }).join('');
+  }
+
+  // Messages
+  const msgs=messages.filter(m=>m.from===currentHotel.nom||m.to===currentHotel.id).sort((a,b)=>b.id-a.id);
+  const ml=document.getElementById('hotel-msg-list');
+  ml.innerHTML=msgs.length?msgs.map(m=>`
+    <div class="msg-item ${m.from!==currentHotel.nom?'hotel':''}">
+      <div class="msg-header">
+        <span class="msg-from">${m.from==='Jacques'?'🌙 Jacques':currentHotel.nom}</span>
+        <span class="msg-date">${fmtD(m.date)}</span>
+      </div>
+      <div class="msg-body">${m.corps}</div>
+      ${m.reply?`<div class="msg-reply">↩️ Jacques : <em>${m.reply}</em></div>`:''}
+    </div>`).join(''):'<div class="empty"><div class="ei">📭</div>Aucun message</div>';
+}
+
+function hotelSendMsg(){
+  if(!currentHotel)return;
+  const corps=document.getElementById('hotel-msg-input').value.trim();
+  if(!corps){toast('⚠️ Écrivez un message','warning');return;}
+  messages.push({id:nextMsgId++,from:currentHotel.nom,to:'admin',
+    sujet:'Message de '+currentHotel.nom,corps,date:today(),read:false});
+  persist();document.getElementById('hotel-msg-input').value='';
+  renderHotelSpace();toast('✅ Message envoyé !');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+
+
+// ═══════════════════════════════════════
+// GÉNÉRATION DE LIENS DE VALIDATION
+// ═══════════════════════════════════════
+
+function genToken(){ return Math.random().toString(36).slice(2,10).toUpperCase()+Date.now().toString(36).toUpperCase(); }
+
+function genLink(id){
+  const m=missions.find(x=>x.id===id);
+  if(!m)return;
+  if(!m.validToken){ m.validToken=genToken(); persist(); }
+  showLinkModal(id);
+}
+
+function copyLink(id){ showLinkModal(id); }
+
+function showLinkModal(id){
+  const m=missions.find(x=>x.id===id);
+  if(!m)return;
+  const h=hotels.find(x=>x.id===m.hotelId);
+  const duree=calcDuree(m.debut,m.fin);
+  const total=duree*parseFloat(m.tarif||0);
+  document.getElementById('link-mission-info').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div><span style="color:var(--muted);font-size:0.72rem">HÔTEL</span><br><strong>${h?h.nom:'—'}</strong></div>
+      <div><span style="color:var(--muted);font-size:0.72rem">DATE</span><br><strong>${fmtD(m.date)}</strong></div>
+      <div><span style="color:var(--muted);font-size:0.72rem">HORAIRES</span><br><strong>${m.debut} → ${m.fin}</strong></div>
+      <div><span style="color:var(--muted);font-size:0.72rem">MONTANT</span><br><strong style="color:var(--accent)">${fmtE(total)}</strong></div>
+    </div>`;
+  // Lien = page actuelle + #sign=TOKEN
+  const url=window.location.href.split('#')[0]+'#sign='+m.validToken;
+  document.getElementById('link-url').value=url;
+  document.getElementById('link-url').dataset.token=m.validToken;
+  openModal('modal-link');
+}
+
+function doCopyLink(){
+  const url=document.getElementById('link-url').value;
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 Lien copié !','info')).catch(()=>{
+    document.getElementById('link-url').select();document.execCommand('copy');toast('🔗 Lien copié !','info');
+  });
+}
+
+// ═══════════════════════════════════════
+// PAGE DE SIGNATURE (via hash URL)
+// ═══════════════════════════════════════
+function checkSignPage(){
+  const hash=window.location.hash;
+  if(!hash.startsWith('#sign='))return;
+  const token=hash.replace('#sign=','');
+  const m=missions.find(x=>x.validToken===token);
+  
+  // Masquer tout et afficher page signature
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('hotelScreen').style.display='none';
+  document.getElementById('signPage').style.display='block';
+
+  if(!m){ 
+    document.getElementById('sign-content').innerHTML=`
+      <div class="card" style="text-align:center;padding:40px">
+        <div style="font-size:2rem;margin-bottom:12px">❌</div>
+        <div style="font-size:1.1rem;font-weight:700;color:var(--red)">Lien invalide ou expiré</div>
+        <div style="color:var(--muted);margin-top:8px;font-size:0.88rem">Contactez Jacques Quatresols pour obtenir un nouveau lien.</div>
+      </div>`;
+    return;
+  }
+
+  const h=hotels.find(x=>x.id===m.hotelId);
+  const duree=calcDuree(m.debut,m.fin);
+  const total=duree*parseFloat(m.tarif||0);
+
+  if(m.signed){
+    document.getElementById('sign-content').innerHTML=`
+      <div class="card" style="text-align:center;padding:40px;border-color:var(--green)">
+        <div style="font-size:2.5rem;margin-bottom:12px">✅</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--green)">Mission déjà signée</div>
+        <div style="color:var(--muted);margin-top:8px;font-size:0.88rem">Signée par <strong>${m.signedBy}</strong> le ${m.signedAt}</div>
+        ${renderBonMission(m,h,duree,total)}
+      </div>`;
+    return;
+  }
+
+  document.getElementById('sign-content').innerHTML=`
+    ${renderBonMission(m,h,duree,total)}
+    
+    <div class="card" style="margin-top:20px">
+      <div class="card-title">✍️ Signature électronique</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">
+        En signant, vous confirmez et acceptez les termes de cette mission de réception de nuit.
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Votre nom complet *</label>
+        <input type="text" id="sign-nom" placeholder="Prénom NOM">
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label>Votre fonction</label>
+        <input type="text" id="sign-fonction" placeholder="Directeur, Gérant...">
+      </div>
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Dessinez votre signature *</label>
+        <canvas id="sign-canvas" width="500" height="160" 
+          style="background:#0a1520;border:2px solid var(--border);border-radius:12px;cursor:crosshair;width:100%;touch-action:none;display:block;"></canvas>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="clearCanvas()">🗑️ Effacer</button>
+          <span style="font-size:0.75rem;color:var(--muted);align-self:center">Signez avec la souris ou le doigt</span>
+        </div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px;font-size:0.78rem;color:var(--muted);margin-bottom:16px">
+        🔒 En cliquant sur "Valider et signer", vous acceptez que votre signature électronique ait la même valeur juridique qu'une signature manuscrite conformément à l'article 1367 du Code Civil.
+      </div>
+      <button class="btn btn-green" style="width:100%;justify-content:center;padding:14px;font-size:1rem" onclick="submitSignature('${token}')">
+        ✅ Valider et signer la mission
+      </button>
+    </div>`;
+
+  initCanvas();
+}
+
+function renderBonMission(m,h,duree,total){
+  return`<div class="card" style="border-color:var(--accent2)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+      <div>
+        <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Bon de mission</div>
+        <div style="font-size:1.3rem;font-weight:800;color:#fff">Mission de réception de nuit</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--mono);font-size:0.8rem;color:var(--accent)">#${m.id}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${fmtD(m.date)}</div>
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div>
+        <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Prestataire</div>
+        <div style="font-weight:700;color:#fff">Jacques QUATRESOLS</div>
+        <div style="font-size:0.8rem;color:var(--muted)">Réceptionniste de nuit</div>
+        <div style="font-size:0.8rem;color:var(--muted)">Auto-entrepreneur</div>
+      </div>
+      <div>
+        <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Client</div>
+        <div style="font-weight:700;color:#fff">${h?h.nom:'—'}</div>
+        ${h&&h.adresse?`<div style="font-size:0.8rem;color:var(--muted)">${h.adresse}</div>`:''}
+        ${h&&h.contact?`<div style="font-size:0.8rem;color:var(--muted)">${h.contact}</div>`:''}
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:var(--bg3);padding:12px;border-radius:10px;text-align:center">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">DATE</div>
+        <div style="font-family:var(--mono);font-size:0.88rem;color:#fff;font-weight:700">${fmtD(m.date)}</div>
+      </div>
+      <div style="background:var(--bg3);padding:12px;border-radius:10px;text-align:center">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">DÉBUT</div>
+        <div style="font-family:var(--mono);font-size:0.88rem;color:#fff;font-weight:700">${m.debut}</div>
+      </div>
+      <div style="background:var(--bg3);padding:12px;border-radius:10px;text-align:center">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">FIN</div>
+        <div style="font-family:var(--mono);font-size:0.88rem;color:#fff;font-weight:700">${m.fin}</div>
+      </div>
+      <div style="background:var(--bg3);padding:12px;border-radius:10px;text-align:center">
+        <div style="font-size:0.7rem;color:var(--muted);margin-bottom:4px">DURÉE</div>
+        <div style="font-family:var(--mono);font-size:0.88rem;color:var(--accent);font-weight:700">${fmtH(duree)}</div>
+      </div>
+    </div>
+    <div style="background:var(--bg3);border-radius:12px;padding:16px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted)">Tarif horaire : <strong style="color:#fff">${fmtE(m.tarif)}/h</strong></div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:2px">Durée : <strong style="color:#fff">${fmtH(duree)}</strong></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Montant total</div>
+        <div style="font-family:var(--mono);font-size:1.8rem;font-weight:700;color:var(--accent)">${fmtE(total)}</div>
+      </div>
+    </div>
+    ${m.notes?`<div style="margin-top:12px;font-size:0.82rem;color:var(--muted);padding:10px;background:var(--bg3);border-radius:8px">📝 ${m.notes}</div>`:''}
+    ${m.signed?`
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:4px">SIGNATURE ÉLECTRONIQUE</div>
+        <div style="font-weight:700;color:var(--green)">${m.signedBy}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${m.signedAt} — ${m.signedFonction||''}</div>
+      </div>
+      <img src="${m.signatureImg}" style="height:60px;border:1px solid var(--border);border-radius:8px;background:#0a1520;padding:4px">
+    </div>`:''}
+  </div>`;
+}
+
+// ═══ CANVAS SIGNATURE ═══
+let isDrawing=false,lastX=0,lastY=0,ctx=null;
+function initCanvas(){
+  const canvas=document.getElementById('sign-canvas');
+  if(!canvas)return;
+  ctx=canvas.getContext('2d');
+  ctx.strokeStyle='#00d4ff';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.lineJoin='round';
+  
+  const getPos=(e)=>{
+    const r=canvas.getBoundingClientRect();
+    const scaleX=canvas.width/r.width,scaleY=canvas.height/r.height;
+    if(e.touches){return{x:(e.touches[0].clientX-r.left)*scaleX,y:(e.touches[0].clientY-r.top)*scaleY};}
+    return{x:(e.clientX-r.left)*scaleX,y:(e.clientY-r.top)*scaleY};
+  };
+  const start=e=>{e.preventDefault();isDrawing=true;const p=getPos(e);lastX=p.x;lastY=p.y;};
+  const draw=e=>{e.preventDefault();if(!isDrawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(p.x,p.y);ctx.stroke();lastX=p.x;lastY=p.y;};
+  const stop=()=>isDrawing=false;
+  canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',draw);
+  canvas.addEventListener('mouseup',stop);canvas.addEventListener('mouseleave',stop);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',draw,{passive:false});
+  canvas.addEventListener('touchend',stop);
+}
+
+function clearCanvas(){if(ctx){const c=document.getElementById('sign-canvas');ctx.clearRect(0,0,c.width,c.height);}}
+
+function isCanvasEmpty(){
+  const c=document.getElementById('sign-canvas');
+  const d=ctx.getImageData(0,0,c.width,c.height).data;
+  return!d.some(x=>x!==0);
+}
+
+function submitSignature(token){
+  const nom=document.getElementById('sign-nom').value.trim();
+  if(!nom){alert('⚠️ Veuillez saisir votre nom complet.');return;}
+  if(isCanvasEmpty()){alert('⚠️ Veuillez dessiner votre signature.');return;}
+  
+  const m=missions.find(x=>x.validToken===token);
+  if(!m)return;
+  const canvas=document.getElementById('sign-canvas');
+  m.signed=true;
+  m.signedBy=nom;
+  m.signedFonction=document.getElementById('sign-fonction').value;
+  m.signedAt=new Date().toLocaleString('fr-FR');
+  m.signatureImg=canvas.toDataURL('image/png');
+  m.statut='confirmée';
+  persist();
+
+  // Succès
+  const h=hotels.find(x=>x.id===m.hotelId);
+  const duree=calcDuree(m.debut,m.fin);
+  const total=duree*parseFloat(m.tarif||0);
+  document.getElementById('sign-content').innerHTML=`
+    <div style="text-align:center;margin-bottom:24px;animation:slideUp 0.4s ease">
+      <div style="font-size:3rem;margin-bottom:8px">✅</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--green)">Mission validée et signée !</div>
+      <div style="color:var(--muted);margin-top:6px;font-size:0.88rem">Merci ${nom}. La mission est confirmée.</div>
+    </div>
+    ${renderBonMission(m,h,duree,total)}
+    <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:0.78rem;font-family:var(--mono)">
+      Osotek Sonnet 4.6 par Quatresols Jacques
+    </div>`;
+}
+
+// ═══════════════════════════════════════
+// INIT — vérifier si on est sur la page de signature
+// ═══════════════════════════════════════
+window.addEventListener('hashchange',checkSignPage);
+
+
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.getElementById('m-date').value=today();
+document.getElementById('h-date').value=today();
+updateMsgNotif();
+checkSignPage();
+checkDocPage();
+
+
+
+// ═══════════════════════════════════════════════════════
+// ORDRES DE MISSION
+// ═══════════════════════════════════════════════════════
+let ordres = ld('ot_ordres');
+let contrats = ld('ot_contrats');
+let nextOId = ld('ot_oid', 1);
+let nextCId = ld('ot_cid', 1);
+
+function persistAll(){
+  persist();
+  sd('ot_ordres', ordres);
+  sd('ot_contrats', contrats);
+  sd('ot_oid', nextOId);
+  sd('ot_cid', nextCId);
+}
+
+function genToken2(){ return Math.random().toString(36).slice(2,10).toUpperCase() + Date.now().toString(36).toUpperCase(); }
+
+function calcOrdreTotal(){
+  const t = parseFloat(document.getElementById('o-tarif').value)||0;
+  const n = parseFloat(document.getElementById('o-nuits').value)||1;
+  const h = calcDuree(document.getElementById('o-hdebut').value, document.getElementById('o-hfin').value);
+  document.getElementById('o-total-display').textContent = fmtE(t * h * n);
+}
+
+function fillOrdreFromHotel(){
+  const hid = parseInt(document.getElementById('o-hotel').value);
+  const h = hotels.find(x=>x.id===hid);
+  if(h && h.tarifHab){ document.getElementById('o-tarif').value = h.tarifHab; calcOrdreTotal(); }
+  // Remplir missions
+  const sel = document.getElementById('o-mission');
+  sel.innerHTML = '<option value="">— Aucune —</option>' +
+    missions.filter(m=>m.hotelId===hid).map(m=>`<option value="${m.id}">${fmtD(m.date)} ${m.debut}-${m.fin}</option>`).join('');
+}
+
+function saveOrdre(){
+  const hid = parseInt(document.getElementById('o-hotel').value);
+  if(!hid||isNaN(hid)){ toast('⚠️ Sélectionnez un hôtel','warning'); return; }
+  const date = document.getElementById('o-debut').value;
+  if(!date){ toast('⚠️ La date est obligatoire','warning'); return; }
+  const editId = parseInt(document.getElementById('ordre-edit-id').value);
+  const h = calcDuree(document.getElementById('o-hdebut').value, document.getElementById('o-hfin').value);
+  const n = parseFloat(document.getElementById('o-nuits').value)||1;
+  const tarif = parseFloat(document.getElementById('o-tarif').value)||0;
+  const data = {
+    hotelId: hid, date, missionId: parseInt(document.getElementById('o-mission').value)||null,
+    hdebut: document.getElementById('o-hdebut').value, hfin: document.getElementById('o-hfin').value,
+    tarif, nuits: n, montant: tarif * h * n,
+    desc: document.getElementById('o-desc').value,
+    conditions: document.getElementById('o-conditions').value,
+    createdAt: today(), signed: false, paid: false, token: genToken2()
+  };
+  if(editId && !isNaN(editId)){
+    const idx = ordres.findIndex(o=>o.id===editId);
+    if(idx>=0) ordres[idx] = {...ordres[idx], ...data};
+    toast('✅ Ordre modifié !');
+  } else {
+    data.id = nextOId++;
+    ordres.push(data);
+    toast('✅ Ordre de mission créé !');
+  }
+  persistAll(); closeModal('modal-ordre'); renderDocuments();
+}
+
+function renderDocuments(){
+  const tbody = document.getElementById('tbody-ordres');
+  const empty = document.getElementById('ordres-empty');
+  if(!ordres.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = [...ordres].reverse().map(o=>{
+    const h = hotels.find(x=>x.id===o.hotelId);
+    const m = o.missionId ? missions.find(x=>x.id===o.missionId) : null;
+    return`<tr>
+      <td style="font-family:var(--mono);color:var(--muted);font-size:0.75rem">OM-${o.id}</td>
+      <td><strong>${h?h.nom:'—'}</strong></td>
+      <td>${m ? fmtD(m.date)+' '+m.debut+'-'+m.fin : fmtD(o.date)}</td>
+      <td style="font-family:var(--mono)">${fmtD(o.createdAt)}</td>
+      <td>${o.signed ? '<span class="badge b-green">✅ Signé</span><br><span style="font-size:0.7rem;color:var(--muted)">'+o.signedBy+'</span>' : '<span class="badge b-gold">⏳ En attente</span>'}</td>
+      <td>${o.paid ? '<span class="badge b-green">💰 Payé</span>' : '<span class="badge b-red">⏳ Impayé</span><br><span style="font-family:var(--mono);font-size:0.75rem;color:var(--gold)">${fmtE(o.montant)}</span>'}</td>
+      <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-accent btn-sm" onclick="sendDocLink('ordre',${o.id})">🔗 Envoyer</button>
+        <button class="btn btn-ghost btn-sm" onclick="editOrdre(${o.id})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="deleteOrdre(${o.id})">🗑️</button>
+      </div></td>
+    </tr>`.replace('${fmtE(o.montant)}', fmtE(o.montant));
+  }).join('');
+}
+
+function editOrdre(id){
+  const o = ordres.find(x=>x.id===id); if(!o) return;
+  document.getElementById('modal-ordre-title').textContent = '✏️ Modifier ordre de mission';
+  document.getElementById('ordre-edit-id').value = id;
+  populateHotelSelect('o-hotel');
+  document.getElementById('o-hotel').value = o.hotelId;
+  fillOrdreFromHotel();
+  document.getElementById('o-debut').value = o.date;
+  document.getElementById('o-hdebut').value = o.hdebut;
+  document.getElementById('o-hfin').value = o.hfin;
+  document.getElementById('o-tarif').value = o.tarif;
+  document.getElementById('o-nuits').value = o.nuits;
+  document.getElementById('o-desc').value = o.desc||'';
+  document.getElementById('o-conditions').value = o.conditions||'';
+  calcOrdreTotal();
+  document.getElementById('modal-ordre-title').textContent = '✏️ Modifier ordre';
+  openModal('modal-ordre');
+}
+
+function deleteOrdre(id){
+  if(!confirm('Supprimer cet ordre ?')) return;
+  ordres = ordres.filter(o=>o.id!==id);
+  persistAll(); renderDocuments(); toast('🗑️ Ordre supprimé','warning');
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTRATS
+// ═══════════════════════════════════════════════════════
+function saveContrat(){
+  const hid = parseInt(document.getElementById('c-hotel').value);
+  if(!hid||isNaN(hid)){ toast('⚠️ Sélectionnez un hôtel','warning'); return; }
+  const debut = document.getElementById('c-debut').value;
+  if(!debut){ toast('⚠️ La date de début est obligatoire','warning'); return; }
+  const editId = parseInt(document.getElementById('contrat-edit-id').value);
+  const data = {
+    hotelId: hid,
+    debut, fin: document.getElementById('c-fin').value,
+    tarif: parseFloat(document.getElementById('c-tarif').value)||0,
+    nuitsParSemaine: parseInt(document.getElementById('c-nuits-semaine').value)||1,
+    hdebut: document.getElementById('c-hdebut').value,
+    hfin: document.getElementById('c-hfin').value,
+    objet: document.getElementById('c-objet').value,
+    conditions: document.getElementById('c-conditions').value,
+    createdAt: today(), signed: false, token: genToken2()
+  };
+  if(editId && !isNaN(editId)){
+    const idx = contrats.findIndex(c=>c.id===editId);
+    if(idx>=0) contrats[idx] = {...contrats[idx], ...data};
+    toast('✅ Contrat modifié !');
+  } else {
+    data.id = nextCId++;
+    contrats.push(data);
+    toast('✅ Contrat créé !');
+  }
+  persistAll(); closeModal('modal-contrat'); renderContrats();
+}
+
+function renderContrats(){
+  const tbody = document.getElementById('tbody-contrats');
+  const empty = document.getElementById('contrats-empty');
+  if(!contrats.length){ tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = [...contrats].reverse().map(c=>{
+    const h = hotels.find(x=>x.id===c.hotelId);
+    return`<tr>
+      <td style="font-family:var(--mono);color:var(--muted);font-size:0.75rem">CT-${c.id}</td>
+      <td><strong>${h?h.nom:'—'}</strong></td>
+      <td style="font-family:var(--mono);font-size:0.8rem">${fmtD(c.debut)} → ${c.fin?fmtD(c.fin):'∞'}</td>
+      <td style="font-family:var(--mono)">${fmtE(c.tarif)}/h</td>
+      <td>${c.signed ? '<span class="badge b-green">✅ Signé</span><br><span style="font-size:0.7rem;color:var(--muted)">'+c.signedBy+'</span>' : '<span class="badge b-gold">⏳ En attente</span>'}</td>
+      <td><div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn btn-accent btn-sm" onclick="sendDocLink('contrat',${c.id})">🔗 Envoyer</button>
+        <button class="btn btn-ghost btn-sm" onclick="editContrat(${c.id})">✏️</button>
+        <button class="btn btn-red btn-sm" onclick="deleteContrat(${c.id})">🗑️</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function editContrat(id){
+  const c = contrats.find(x=>x.id===id); if(!c) return;
+  document.getElementById('contrat-edit-id').value = id;
+  populateHotelSelect('c-hotel');
+  document.getElementById('c-hotel').value = c.hotelId;
+  document.getElementById('c-debut').value = c.debut;
+  document.getElementById('c-fin').value = c.fin||'';
+  document.getElementById('c-tarif').value = c.tarif;
+  document.getElementById('c-nuits-semaine').value = c.nuitsParSemaine;
+  document.getElementById('c-hdebut').value = c.hdebut;
+  document.getElementById('c-hfin').value = c.hfin;
+  document.getElementById('c-objet').value = c.objet;
+  document.getElementById('c-conditions').value = c.conditions;
+  openModal('modal-contrat');
+}
+
+function deleteContrat(id){
+  if(!confirm('Supprimer ce contrat ?')) return;
+  contrats = contrats.filter(c=>c.id!==id);
+  persistAll(); renderContrats(); toast('🗑️ Contrat supprimé','warning');
+}
+
+// ═══════════════════════════════════════════════════════
+// ENVOI LIEN UNIVERSEL (signer + payer)
+// ═══════════════════════════════════════════════════════
+function sendDocLink(type, id){
+  let doc, label, montant;
+  if(type==='ordre'){
+    doc = ordres.find(x=>x.id===id);
+    const h = hotels.find(x=>x.id===doc.hotelId);
+    label = 'Ordre de mission OM-'+id+' — '+( h?h.nom:'');
+    montant = doc.montant;
+  } else if(type==='contrat'){
+    doc = contrats.find(x=>x.id===id);
+    const h = hotels.find(x=>x.id===doc.hotelId);
+    label = 'Contrat CT-'+id+' — '+(h?h.nom:'');
+    montant = null;
+  } else if(type==='facture'){
+    doc = factures.find(x=>x.id===id);
+    const h = hotels.find(x=>x.id===doc.hotelId);
+    label = 'Facture '+doc.num+' — '+(h?h.nom:'');
+    montant = doc.ttc;
+  }
+  if(!doc) return;
+  if(!doc.token) { doc.token = genToken2(); persistAll(); }
+
+  const url = window.location.href.split('#')[0] + '#doc=' + type + '_' + doc.token;
+  document.getElementById('send-link-info').innerHTML = `
+    <div style="font-weight:700;color:#fff;margin-bottom:8px">${label}</div>
+    ${montant ? '<div style="color:var(--gold);font-family:var(--mono);font-size:1.1rem">'+fmtE(montant)+'</div>' : ''}
+    <div style="font-size:0.78rem;color:var(--muted);margin-top:4px">${doc.signed ? '✅ Déjà signé par '+doc.signedBy : '⏳ En attente de signature'}</div>`;
+  document.getElementById('send-link-url').value = url;
+  openModal('modal-send-link');
+}
+
+function doCopySendLink(){
+  const url = document.getElementById('send-link-url').value;
+  navigator.clipboard.writeText(url).then(()=>toast('🔗 Lien copié !','info')).catch(()=>{
+    document.getElementById('send-link-url').select(); document.execCommand('copy'); toast('🔗 Lien copié !','info');
+  });
+}
+
+// Ajouter sendDocLink pour factures dans renderFactures
+function openSendFactureLink(id){ sendDocLink('facture', id); }
+
+// ═══════════════════════════════════════════════════════
+// PAGE CLIENT UNIVERSELLE (signature + paiement)
+// ═══════════════════════════════════════════════════════
+function checkDocPage(){
+  const hash = window.location.hash;
+  if(!hash.startsWith('#doc=')) return;
+  const full = hash.replace('#doc=','');
+  const sep = full.indexOf('_');
+  const type = full.slice(0, sep);
+  const token = full.slice(sep+1);
+
+  // Masquer tout
+  ['loginScreen','appScreen','hotelScreen','signPage'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.style.display='none';
+  });
+
+  // Créer/afficher la page doc
+  let docPage = document.getElementById('docPage');
+  if(!docPage){
+    docPage = document.createElement('div');
+    docPage.id = 'docPage';
+    docPage.style.cssText = 'min-height:100vh;background:var(--bg);';
+    document.body.appendChild(docPage);
+  }
+  docPage.style.display = 'block';
+
+  let doc, h;
+  if(type==='ordre'){
+    doc = ordres.find(x=>x.token===token);
+    if(doc) h = hotels.find(x=>x.id===doc.hotelId);
+    renderDocPage(docPage, type, doc, h, token);
+  } else if(type==='contrat'){
+    doc = contrats.find(x=>x.token===token);
+    if(doc) h = hotels.find(x=>x.id===doc.hotelId);
+    renderDocPage(docPage, type, doc, h, token);
+  } else if(type==='facture'){
+    doc = factures.find(x=>x.token===token);
+    if(doc) h = hotels.find(x=>x.id===doc.hotelId);
+    renderDocPage(docPage, type, doc, h, token);
+  }
+}
+
+function renderDocPage(container, type, doc, h, token){
+  // ═══ CONFIG PAIEMENT (personnalisez ici) ═══
+  const RIB = {
+    iban: 'FR76 XXXX XXXX XXXX XXXX XXXX XXX',
+    bic: 'XXXXXXXX',
+    banque: 'Votre banque',
+    titulaire: 'QUATRESOLS Jacques'
+  };
+  const STRIPE_LINK = 'https://buy.stripe.com/VOTRE_LIEN_STRIPE';
+  const PAYPAL_LINK = 'https://paypal.me/VOTRE_NOM'; // ex: https://paypal.me/jacquesquatresols
+
+  if(!doc){
+    container.innerHTML = `
+      <div style="min-height:100vh;background:#060d18;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif">
+        <div style="text-align:center;padding:40px">
+          <div style="font-size:4rem;margin-bottom:16px">❌</div>
+          <div style="font-size:1.2rem;font-weight:700;color:#ff4f6d">Lien invalide ou expiré</div>
+          <div style="color:#5a7a99;margin-top:10px">Contactez Jacques QUATRESOLS pour obtenir un nouveau lien.</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const docTitle = type==='ordre' ? 'Ordre de Mission' : type==='contrat' ? 'Contrat de Prestation' : 'Facture';
+  const docRef   = type==='ordre' ? 'OM-'+doc.id : type==='contrat' ? 'CT-'+doc.id : doc.num;
+  const montant  = type==='facture' ? doc.ttc : type==='ordre' ? doc.montant : null;
+
+  // ─── CONTENU DOCUMENT ───
+  let docBody = '';
+  if(type==='ordre'){
+    const duree = calcDuree(doc.hdebut, doc.hfin);
+    docBody = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+        ${[['📅 Date', fmtD(doc.date)],['🕐 Horaires', doc.hdebut+' → '+doc.hfin],['⏱ Durée', fmtH(duree)+' / nuit'],['💶 Tarif', fmtE(doc.tarif)+'/h']].map(([l,v])=>`
+        <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:14px">
+          <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:4px">${l}</div>
+          <div style="font-weight:700;color:#cde4f5">${v}</div>
+        </div>`).join('')}
+      </div>
+      <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:6px">📋 DESCRIPTION</div>
+        <div style="color:#cde4f5;line-height:1.6">${doc.desc||'—'}</div>
+      </div>
+      ${doc.conditions?`<div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:14px;margin-bottom:10px">
+        <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:6px">📌 CONDITIONS</div>
+        <div style="color:#cde4f5;line-height:1.6">${doc.conditions}</div>
+      </div>`:''}
+      <div style="background:#0d1825;border:2px solid #00d4ff;border-radius:12px;padding:18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="color:#5a7a99;font-size:0.85rem">${doc.nuits} nuit(s) × ${fmtH(duree)} × ${fmtE(doc.tarif)}/h</div>
+        <div style="font-size:1.8rem;font-weight:800;color:#00d4ff">${fmtE(doc.montant)}</div>
+      </div>`;
+  } else if(type==='contrat'){
+    docBody = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0">
+        ${[['📅 Début', fmtD(doc.debut)],['📅 Fin', doc.fin?fmtD(doc.fin):'Indéterminée'],['🕐 Horaires', doc.hdebut+' → '+doc.hfin],['💶 Tarif', fmtE(doc.tarif)+'/h']].map(([l,v])=>`
+        <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:14px">
+          <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:4px">${l}</div>
+          <div style="font-weight:700;color:#cde4f5">${v}</div>
+        </div>`).join('')}
+      </div>
+      <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:16px;margin-bottom:10px">
+        <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:8px">📋 OBJET DU CONTRAT</div>
+        <div style="color:#cde4f5;line-height:1.7;font-size:0.9rem">${doc.objet}</div>
+      </div>
+      <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:16px">
+        <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:8px">⚖️ CONDITIONS GÉNÉRALES</div>
+        <div style="color:#8aaabb;line-height:1.7;font-size:0.85rem">${doc.conditions}</div>
+      </div>`;
+  } else if(type==='facture'){
+    docBody = `
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:16px 0">
+        ${[['📅 Date', fmtD(doc.date)],['⏱ Heures', fmtH(doc.heures||0)],['💶 Tarif/h', fmtE(doc.tarif)]].map(([l,v])=>`
+        <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:10px;padding:14px;text-align:center">
+          <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:4px">${l}</div>
+          <div style="font-weight:700;color:#cde4f5">${v}</div>
+        </div>`).join('')}
+      </div>
+      <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:12px;padding:20px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:0.9rem">
+          <span style="color:#5a7a99">Montant HT</span><span style="color:#cde4f5">${fmtE(doc.ht)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:14px;font-size:0.9rem;padding-bottom:14px;border-bottom:1px solid #1e3a5f">
+          <span style="color:#5a7a99">TVA ${doc.tva}%</span><span style="color:#cde4f5">${fmtE(doc.tvaMontant)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:700;color:#fff;font-size:1rem">TOTAL TTC</span>
+          <span style="font-size:2rem;font-weight:800;color:#00d4ff">${fmtE(doc.ttc)}</span>
+        </div>
+      </div>
+      ${doc.notes?`<div style="background:#0d1825;border-radius:10px;padding:12px;margin-top:10px;font-size:0.85rem;color:#5a7a99">${doc.notes}</div>`:''}`;
+  }
+
+  // ─── SECTION PAIEMENT ───
+  let paySection = '';
+  if(montant && !doc.paid){
+    paySection = `
+    <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:16px;padding:24px;margin-top:20px">
+      <div style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:6px">💳 Choisissez votre mode de règlement</div>
+      <div style="font-size:0.85rem;color:#5a7a99;margin-bottom:20px">Montant à régler : <strong style="color:#ffc857;font-size:1.1rem">${fmtE(montant)}</strong></div>
+
+      <!-- 3 boutons de paiement clairs -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Carte bancaire Stripe -->
+        <a href="${STRIPE_LINK}" target="_blank" style="text-decoration:none">
+          <div style="background:linear-gradient(135deg,#635bff,#4f46e5);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:18px;cursor:pointer;transition:opacity 0.2s" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+            <div style="font-size:2.2rem">💳</div>
+            <div style="flex:1">
+              <div style="font-weight:800;color:#fff;font-size:1rem">Payer par carte bancaire</div>
+              <div style="font-size:0.82rem;color:rgba(255,255,255,0.75);margin-top:2px">Visa, Mastercard, CB — Paiement 100% sécurisé Stripe</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.2);color:#fff;border-radius:10px;padding:10px 18px;font-weight:800;white-space:nowrap;font-size:0.9rem">
+              Payer ${fmtE(montant)} →
+            </div>
+          </div>
+        </a>
+
+        <!-- PayPal -->
+        <a href="${PAYPAL_LINK}" target="_blank" style="text-decoration:none">
+          <div style="background:linear-gradient(135deg,#003087,#009cde);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:18px;cursor:pointer;transition:opacity 0.2s" onmouseover="this.style.opacity=0.9" onmouseout="this.style.opacity=1">
+            <div style="font-size:2.2rem">🅿️</div>
+            <div style="flex:1">
+              <div style="font-weight:800;color:#fff;font-size:1rem">Payer via PayPal</div>
+              <div style="font-size:0.82rem;color:rgba(255,255,255,0.75);margin-top:2px">Compte PayPal ou carte bancaire sans inscription</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.2);color:#fff;border-radius:10px;padding:10px 18px;font-weight:800;white-space:nowrap;font-size:0.9rem">
+              Payer ${fmtE(montant)} →
+            </div>
+          </div>
+        </a>
+
+        <!-- Virement bancaire -->
+        <div style="background:#122030;border:2px solid #1e3a5f;border-radius:14px;padding:20px 24px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div style="font-size:2.2rem">🏦</div>
+            <div>
+              <div style="font-weight:800;color:#fff;font-size:1rem">Payer par virement bancaire</div>
+              <div style="font-size:0.82rem;color:#5a7a99;margin-top:2px">Gratuit — Délai : 1 à 3 jours ouvrés</div>
+            </div>
+          </div>
+          <div style="background:#0d1825;border-radius:10px;padding:16px;font-size:0.88rem;line-height:2">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1e3a5f;padding-bottom:8px;margin-bottom:8px">
+              <span style="color:#5a7a99">Bénéficiaire</span>
+              <span style="color:#fff;font-weight:700">${RIB.titulaire}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1e3a5f;padding-bottom:8px;margin-bottom:8px">
+              <span style="color:#5a7a99">IBAN</span>
+              <span style="color:#00d4ff;font-family:monospace;font-weight:700;font-size:0.82rem">${RIB.iban}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1e3a5f;padding-bottom:8px;margin-bottom:8px">
+              <span style="color:#5a7a99">BIC / SWIFT</span>
+              <span style="color:#cde4f5;font-family:monospace">${RIB.bic}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid #1e3a5f;padding-bottom:8px;margin-bottom:8px">
+              <span style="color:#5a7a99">Banque</span>
+              <span style="color:#cde4f5">${RIB.banque}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between">
+              <span style="color:#5a7a99">Référence obligatoire</span>
+              <span style="color:#ffc857;font-family:monospace;font-weight:800">${docRef}</span>
+            </div>
+          </div>
+          <div style="margin-top:12px;background:rgba(255,200,87,0.08);border:1px solid rgba(255,200,87,0.3);border-radius:8px;padding:10px 14px;font-size:0.8rem;color:#ffc857">
+            ⚠️ Important : indiquez impérativement la référence <strong>${docRef}</strong> dans le libellé de votre virement
+          </div>
+        </div>
+      </div>
+    </div>`;
+  } else if(doc.paid){
+    paySection = `
+    <div style="background:rgba(0,229,160,0.05);border:2px solid rgba(0,229,160,0.3);border-radius:16px;padding:24px;margin-top:20px;text-align:center">
+      <div style="font-size:2.5rem;margin-bottom:8px">✅</div>
+      <div style="font-size:1.1rem;font-weight:800;color:#00e5a0">Paiement reçu — Merci !</div>
+      <div style="color:#5a7a99;margin-top:6px;font-size:0.88rem">Ce règlement a bien été enregistré.</div>
+    </div>`;
+  }
+
+  // ─── SECTION SIGNATURE ───
+  const signSection = !doc.signed ? `
+    <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:16px;padding:24px;margin-top:20px">
+      <div style="font-size:1rem;font-weight:800;color:#fff;margin-bottom:4px">✍️ Signature électronique</div>
+      <div style="font-size:0.85rem;color:#5a7a99;margin-bottom:20px">En signant ce document, vous confirmez en avoir pris connaissance et l'accepter.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div>
+          <label style="font-size:0.72rem;color:#5a7a99;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Nom complet *</label>
+          <input type="text" id="doc-sign-nom" placeholder="Prénom NOM" style="width:100%;background:#060d18;border:1px solid #1e3a5f;border-radius:10px;padding:10px 14px;color:#cde4f5;font-size:0.9rem;outline:none">
+        </div>
+        <div>
+          <label style="font-size:0.72rem;color:#5a7a99;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Fonction / Titre</label>
+          <input type="text" id="doc-sign-fonction" placeholder="Directeur, Gérant..." style="width:100%;background:#060d18;border:1px solid #1e3a5f;border-radius:10px;padding:10px 14px;color:#cde4f5;font-size:0.9rem;outline:none">
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <label style="font-size:0.72rem;color:#5a7a99;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Votre signature *</label>
+        <canvas id="doc-sign-canvas" width="600" height="140"
+          style="background:#060d18;border:2px solid #1e3a5f;border-radius:12px;cursor:crosshair;width:100%;touch-action:none;display:block;"></canvas>
+        <button onclick="clearDocCanvas()" style="margin-top:8px;background:rgba(0,212,255,0.08);color:#00d4ff;border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:0.8rem">
+          🗑️ Effacer la signature
+        </button>
+      </div>
+      <div style="background:#060d18;border-radius:10px;padding:12px 16px;font-size:0.78rem;color:#5a7a99;margin-bottom:16px;line-height:1.5">
+        🔒 Signature électronique ayant valeur juridique conformément à l'article 1367 du Code Civil français. Votre signature, nom, fonction et l'heure exacte seront enregistrés.
+      </div>
+      <button onclick="submitDocSignature('${type}','${token}')"
+        style="width:100%;background:#00e5a0;color:#000;border:none;border-radius:12px;padding:16px;font-size:1rem;font-weight:800;cursor:pointer;transition:all 0.2s"
+        onmouseover="this.style.background='#33ffb8'" onmouseout="this.style.background='#00e5a0'">
+        ✅ Valider et signer ce document
+      </button>
+    </div>` : `
+    <div style="background:rgba(0,229,160,0.05);border:2px solid rgba(0,229,160,0.3);border-radius:16px;padding:20px;margin-top:20px">
+      <div style="font-size:0.72rem;color:#5a7a99;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">✅ Document signé électroniquement</div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:800;color:#00e5a0;font-size:1rem">${doc.signedBy}</div>
+          <div style="font-size:0.82rem;color:#5a7a99;margin-top:4px">${doc.signedFonction||''} — Le ${doc.signedAt}</div>
+        </div>
+        ${doc.signatureImg?`<img src="${doc.signatureImg}" style="height:60px;border:1px solid #1e3a5f;border-radius:8px;background:#060d18;padding:4px">`:''}
+      </div>
+    </div>`;
+
+  container.innerHTML = `
+    <div style="min-height:100vh;background:#060d18;font-family:'Syne',sans-serif">
+      <!-- HEADER -->
+      <div style="background:#0d1825;border-bottom:1px solid #1e3a5f;padding:16px 24px;display:flex;align-items:center;gap:14px">
+        <svg width="36" height="36" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="35" stroke="#00d4ff" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+          <circle cx="40" cy="40" r="16" fill="#060d18" stroke="#00d4ff" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="3" fill="#00d4ff"/>
+          <circle cx="40" cy="14" r="2" fill="#00d4ff"><animateTransform attributeName="transform" type="rotate" from="0 40 40" to="360 40 40" dur="6s" repeatCount="indefinite"/></circle>
+        </svg>
+        <div>
+          <div style="font-weight:800;color:#00d4ff;font-size:1rem;letter-spacing:1px">THE NIGHT</div>
+          <div style="font-size:0.75rem;color:#5a7a99">Plateforme de services et réception de nuit</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:0.72rem;color:#5a7a99">${docTitle}</div>
+          <div style="font-weight:800;color:#cde4f5">${docRef}</div>
+        </div>
+      </div>
+
+      <div style="max-width:700px;margin:0 auto;padding:28px 20px 60px">
+
+        <!-- PARTIES -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+          <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:14px;padding:18px">
+            <div style="font-size:0.7rem;color:#5a7a99;margin-bottom:6px;text-transform:uppercase">Prestataire</div>
+            <div style="font-weight:800;color:#fff">Jacques QUATRESOLS</div>
+            <div style="font-size:0.8rem;color:#5a7a99;margin-top:3px">Réceptionniste de nuit</div>
+            <div style="font-size:0.8rem;color:#5a7a99">Auto-entrepreneur</div>
+          </div>
+          <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:14px;padding:18px">
+            <div style="font-size:0.7rem;color:#5a7a99;margin-bottom:6px;text-transform:uppercase">Client</div>
+            <div style="font-weight:800;color:#fff">${h?h.nom:'—'}</div>
+            ${h&&h.adresse?`<div style="font-size:0.8rem;color:#5a7a99;margin-top:3px">${h.adresse}</div>`:''}
+            ${h&&h.contact?`<div style="font-size:0.8rem;color:#5a7a99">${h.contact}</div>`:''}
+          </div>
+        </div>
+
+        <!-- DOCUMENT -->
+        <div style="background:#0d1825;border:1px solid #1e3a5f;border-radius:16px;padding:22px;margin-bottom:0">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <div style="font-size:0.72rem;color:#5a7a99;text-transform:uppercase;letter-spacing:1px">${docTitle}</div>
+            ${doc.signed?'<span style="background:rgba(0,229,160,0.12);color:#00e5a0;border:1px solid rgba(0,229,160,0.3);border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">✅ SIGNÉ</span>':'<span style="background:rgba(255,200,87,0.12);color:#ffc857;border:1px solid rgba(255,200,87,0.3);border-radius:20px;padding:3px 10px;font-size:0.72rem;font-weight:700">⏳ À SIGNER</span>'}
+          </div>
+          <div style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:4px">${docRef}</div>
+          <div style="font-size:0.8rem;color:#5a7a99">Émis le ${fmtD(doc.createdAt)}</div>
+          ${docBody}
+        </div>
+
+        ${paySection}
+        ${signSection}
+
+        <div style="text-align:center;margin-top:32px;color:#5a7a99;font-size:0.72rem">
+          THE NIGHT — Plateforme de services et réception de nuit — Jacques QUATRESOLS
+        </div>
+      </div>
+    </div>`;
+
+  if(!doc.signed) initDocCanvas();
+}
+
+// ═══ CANVAS DOC ═══
+let docCtx = null, docDrawing = false, docLastX = 0, docLastY = 0;
+function initDocCanvas(){
+  setTimeout(()=>{
+    const canvas = document.getElementById('doc-sign-canvas');
+    if(!canvas) return;
+    docCtx = canvas.getContext('2d');
+    docCtx.strokeStyle = '#00d4ff'; docCtx.lineWidth = 2.5;
+    docCtx.lineCap = 'round'; docCtx.lineJoin = 'round';
+    const getPos = e => {
+      const r = canvas.getBoundingClientRect();
+      const sx = canvas.width/r.width, sy = canvas.height/r.height;
+      if(e.touches) return {x:(e.touches[0].clientX-r.left)*sx, y:(e.touches[0].clientY-r.top)*sy};
+      return {x:(e.clientX-r.left)*sx, y:(e.clientY-r.top)*sy};
+    };
+    canvas.addEventListener('mousedown', e=>{e.preventDefault();docDrawing=true;const p=getPos(e);docLastX=p.x;docLastY=p.y;});
+    canvas.addEventListener('mousemove', e=>{e.preventDefault();if(!docDrawing)return;const p=getPos(e);docCtx.beginPath();docCtx.moveTo(docLastX,docLastY);docCtx.lineTo(p.x,p.y);docCtx.stroke();docLastX=p.x;docLastY=p.y;});
+    canvas.addEventListener('mouseup', ()=>docDrawing=false);
+    canvas.addEventListener('mouseleave', ()=>docDrawing=false);
+    canvas.addEventListener('touchstart', e=>{e.preventDefault();docDrawing=true;const p=getPos(e);docLastX=p.x;docLastY=p.y;},{passive:false});
+    canvas.addEventListener('touchmove', e=>{e.preventDefault();if(!docDrawing)return;const p=getPos(e);docCtx.beginPath();docCtx.moveTo(docLastX,docLastY);docCtx.lineTo(p.x,p.y);docCtx.stroke();docLastX=p.x;docLastY=p.y;},{passive:false});
+    canvas.addEventListener('touchend', ()=>docDrawing=false);
+  }, 200);
+}
+
+function clearDocCanvas(){
+  if(docCtx){ const c=document.getElementById('doc-sign-canvas'); docCtx.clearRect(0,0,c.width,c.height); }
+}
+
+function isDocCanvasEmpty(){
+  if(!docCtx) return true;
+  const c = document.getElementById('doc-sign-canvas');
+  return !docCtx.getImageData(0,0,c.width,c.height).data.some(x=>x!==0);
+}
+
+function submitDocSignature(type, token){
+  const nom = document.getElementById('doc-sign-nom').value.trim();
+  if(!nom){ alert('⚠️ Veuillez saisir votre nom complet.'); return; }
+  if(isDocCanvasEmpty()){ alert('⚠️ Veuillez dessiner votre signature.'); return; }
+
+  let doc;
+  if(type==='ordre') doc = ordres.find(x=>x.token===token);
+  else if(type==='contrat') doc = contrats.find(x=>x.token===token);
+  else if(type==='facture') doc = factures.find(x=>x.token===token);
+  if(!doc) return;
+
+  const canvas = document.getElementById('doc-sign-canvas');
+  doc.signed = true;
+  doc.signedBy = nom;
+  doc.signedFonction = document.getElementById('doc-sign-fonction').value;
+  doc.signedAt = new Date().toLocaleString('fr-FR');
+  doc.signatureImg = canvas.toDataURL('image/png');
+  persistAll();
+
+  // Rafraîchir la page
+  checkDocPage();
+  // Scroll en haut
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Extension modals : gérée dans openModal()
+
+
+
+
+// Init doc page au chargement
+window.addEventListener('hashchange', checkDocPage);
+
+
+// ═══════════════════════════════════════════════════════
+// EMAIL GMAIL + PDF FACTURE
+// ═══════════════════════════════════════════════════════
+let _currentGmailFactureId = null;
+
+function sendFactureGmail(id) {
+  const f = factures.find(x => x.id === id);
+  if (!f) return;
+  const h = hotels.find(x => x.id === f.hotelId);
+  _currentGmailFactureId = id;
+
+  // Pré-remplir les infos
+  document.getElementById('gmail-facture-info').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div><span style="color:var(--muted);font-size:0.7rem">FACTURE</span><br><strong style="color:var(--accent)">${f.num}</strong></div>
+      <div><span style="color:var(--muted);font-size:0.7rem">CLIENT</span><br><strong>${h ? h.nom : '—'}</strong></div>
+      <div><span style="color:var(--muted);font-size:0.7rem">MONTANT TTC</span><br><strong style="color:var(--gold)">${fmtE(f.ttc)}</strong></div>
+    </div>`;
+
+  // Pré-remplir email destinataire
+  document.getElementById('gmail-to').value = h && h.email ? h.email : '';
+
+  // Générer lien de paiement
+  if (!f.token) { f.token = genToken2(); persistAll(); }
+  const payLink = window.location.href.split('#')[0] + '#doc=facture_' + f.token;
+
+  // Sujet
+  document.getElementById('gmail-subject').value =
+    `Facture ${f.num} — Réception de nuit — ${fmtE(f.ttc)} à régler`;
+
+  // Corps du mail
+  document.getElementById('gmail-body').value =
+`Bonjour,
+
+Veuillez trouver ci-joint ma facture ${f.num} d'un montant de ${fmtE(f.ttc)} pour mes prestations de réception de nuit.
+
+📋 Détail :
+• Période : ${fmtD(f.date)}
+• Heures effectuées : ${fmtH(f.heures || 0)}
+• Tarif horaire : ${fmtE(f.tarif)}/h
+• Montant HT : ${fmtE(f.ht)}
+• TVA (${f.tva}%) : ${fmtE(f.tvaMontant)}
+• Total TTC : ${fmtE(f.ttc)}
+
+💳 Paiement en ligne (carte bancaire ou virement) :
+${payLink}
+
+🏦 Virement bancaire :
+IBAN : FR76 XXXX XXXX XXXX XXXX XXXX XXX
+BIC : XXXXXXXX
+Référence : ${f.num}
+
+Délai de paiement : 30 jours.
+
+Cordialement,
+Jacques QUATRESOLS
+Réceptionniste de nuit — Auto-entrepreneur`;
+
+  openModal('modal-gmail');
+}
+
+function openGmail() {
+  const to = document.getElementById('gmail-to').value.trim();
+  const subject = encodeURIComponent(document.getElementById('gmail-subject').value);
+  const body = encodeURIComponent(document.getElementById('gmail-body').value);
+  if (!to) { toast('⚠️ Saisissez l\'adresse email du destinataire', 'warning'); return; }
+  const gmailUrl = `https://mail.google.com/mail/?view=cm&to=${encodeURIComponent(to)}&su=${subject}&body=${body}`;
+  window.open(gmailUrl, '_blank');
+  toast('📧 Gmail ouvert ! Joignez le PDF téléchargé.', 'info');
+}
+
+function downloadFacturePDF(idOverride) {
+  const id = idOverride || _currentGmailFactureId;
+  if (!id) return;
+  const f = factures.find(x => x.id === id);
+  if (!f) return;
+  const h = hotels.find(x => x.id === f.hotelId);
+
+  // Vérifier que jsPDF est chargé
+  if (typeof window.jspdf === 'undefined' && typeof jsPDF === 'undefined') {
+    toast('⚠️ Chargement de jsPDF... Réessayez dans 2 secondes.', 'warning');
+    return;
+  }
+  const { jsPDF } = window.jspdf || window;
+
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, margin = 20;
+  let y = 0;
+
+  // ── Fond noir
+  doc.setFillColor(6, 13, 24);
+  doc.rect(0, 0, W, 297, 'F');
+
+  // ── Bandeau header
+  doc.setFillColor(13, 24, 37);
+  doc.rect(0, 0, W, 45, 'F');
+
+  // Ligne accent
+  doc.setDrawColor(0, 212, 255);
+  doc.setLineWidth(0.8);
+  doc.line(0, 45, W, 45);
+
+  // Logo cercles
+  doc.setDrawColor(0, 212, 255);
+  doc.setLineWidth(0.4);
+  doc.circle(margin + 10, 22, 10);
+  doc.circle(margin + 10, 22, 6);
+  doc.setFillColor(0, 212, 255);
+  doc.circle(margin + 10, 22, 1.5, 'F');
+  doc.setLineWidth(0.3);
+  doc.line(margin, 22, margin + 4, 22);
+  doc.line(margin + 16, 22, margin + 20, 22);
+  doc.line(margin + 10, 12, margin + 10, 16);
+  doc.line(margin + 10, 28, margin + 10, 32);
+
+  // Titre THE NIGHT
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('THE NIGHT', margin + 25, 19);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(90, 122, 153);
+  doc.text('Plateforme de services et réception de nuit', margin + 25, 26);
+  doc.setFontSize(7);
+  doc.text('Jacques QUATRESOLS — Auto-entrepreneur', margin + 25, 32);
+
+  // Référence facture à droite
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('FACTURE', W - margin, 20, { align: 'right' });
+  doc.setFontSize(12);
+  doc.setTextColor(205, 228, 245);
+  doc.text(f.num, W - margin, 28, { align: 'right' });
+  doc.setFontSize(8);
+  doc.setTextColor(90, 122, 153);
+  doc.text('Date : ' + fmtD(f.date), W - margin, 35, { align: 'right' });
+
+  y = 58;
+
+  // ── Bloc PRESTATAIRE / CLIENT
+  const colW = (W - margin * 2 - 10) / 2;
+
+  // Prestataire
+  doc.setFillColor(18, 32, 48);
+  doc.roundedRect(margin, y, colW, 38, 3, 3, 'F');
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PRESTATAIRE', margin + 6, y + 8);
+  doc.setTextColor(205, 228, 245);
+  doc.setFontSize(10);
+  doc.text('Jacques QUATRESOLS', margin + 6, y + 16);
+  doc.setFontSize(8);
+  doc.setTextColor(90, 122, 153);
+  doc.text('Réceptionniste de nuit', margin + 6, y + 23);
+  doc.text('Auto-entrepreneur', margin + 6, y + 29);
+
+  // Client
+  const cx = margin + colW + 10;
+  doc.setFillColor(18, 32, 48);
+  doc.roundedRect(cx, y, colW, 38, 3, 3, 'F');
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(7);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CLIENT', cx + 6, y + 8);
+  doc.setTextColor(205, 228, 245);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text(h ? h.nom : '—', cx + 6, y + 16);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(90, 122, 153);
+  if (h && h.adresse) doc.text(h.adresse, cx + 6, y + 23);
+  if (h && h.contact) doc.text(h.contact, cx + 6, y + 29);
+
+  y += 48;
+
+  // ── Tableau de détail
+  doc.setFillColor(13, 24, 37);
+  doc.roundedRect(margin, y, W - margin * 2, 10, 2, 2, 'F');
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  const cols = [margin + 4, margin + 75, margin + 110, margin + 140, W - margin - 4];
+  doc.text('DESCRIPTION', cols[0], y + 6.5);
+  doc.text('HEURES', cols[1], y + 6.5);
+  doc.text('TARIF/H', cols[2], y + 6.5);
+  doc.text('MONTANT HT', cols[3], y + 6.5);
+
+  y += 14;
+  doc.setFillColor(18, 32, 48);
+  doc.rect(margin, y - 3, W - margin * 2, 14, 'F');
+  doc.setTextColor(205, 228, 245);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Prestation de réception de nuit', cols[0], y + 5);
+  doc.text(fmtH(f.heures || 0), cols[1], y + 5);
+  doc.text(fmtE(f.tarif), cols[2], y + 5);
+  doc.text(fmtE(f.ht), cols[3], y + 5);
+
+  y += 20;
+
+  // ── Totaux
+  const totalsX = W - margin - 80;
+  const totalsW = 80;
+
+  const addTotal = (label, val, isMain = false) => {
+    if (isMain) {
+      doc.setFillColor(0, 144, 187);
+      doc.roundedRect(totalsX, y - 4, totalsW, 12, 2, 2, 'F');
+      doc.setTextColor(0, 0, 0);
+    } else {
+      doc.setTextColor(90, 122, 153);
+    }
+    doc.setFontSize(isMain ? 10 : 8.5);
+    doc.setFont('helvetica', isMain ? 'bold' : 'normal');
+    doc.text(label, totalsX + 4, y + 4);
+    doc.text(val, totalsX + totalsW - 4, y + 4, { align: 'right' });
+    if (!isMain) doc.setTextColor(205, 228, 245);
+    y += isMain ? 14 : 10;
+  };
+
+  addTotal('Montant HT', fmtE(f.ht));
+  addTotal(`TVA ${f.tva}%`, fmtE(f.tvaMontant));
+  y += 2;
+  doc.setDrawColor(0, 212, 255);
+  doc.setLineWidth(0.3);
+  doc.line(totalsX, y - 3, totalsX + totalsW, y - 3);
+  y += 2;
+  addTotal('TOTAL TTC', fmtE(f.ttc), true);
+
+  // Statut
+  y += 4;
+  if (f.statut === 'payée') {
+    doc.setFillColor(0, 80, 50);
+    doc.roundedRect(totalsX, y - 4, totalsW, 10, 2, 2, 'F');
+    doc.setTextColor(0, 229, 160);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('✓ PAYÉE', totalsX + totalsW / 2, y + 3, { align: 'center' });
+  } else {
+    doc.setFillColor(80, 20, 30);
+    doc.roundedRect(totalsX, y - 4, totalsW, 10, 2, 2, 'F');
+    doc.setTextColor(255, 79, 109);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('EN ATTENTE', totalsX + totalsW / 2, y + 3, { align: 'center' });
+  }
+
+  y += 20;
+
+  // ── Notes
+  if (f.notes) {
+    doc.setFillColor(18, 32, 48);
+    doc.roundedRect(margin, y, W - margin * 2, 18, 3, 3, 'F');
+    doc.setTextColor(90, 122, 153);
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('NOTES', margin + 6, y + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(205, 228, 245);
+    doc.text(f.notes, margin + 6, y + 13);
+    y += 24;
+  }
+
+  // ── Encadré RÉGLEZ EN LIGNE — nouvelle page si nécessaire
+  if (y > 205) {
+    doc.addPage();
+    // Fond noir nouvelle page
+    doc.setFillColor(6, 13, 24);
+    doc.rect(0, 0, W, 297, 'F');
+    y = 20;
+  } else {
+    y = Math.max(y, 155);
+  }
+
+  // Config liens paiement (à personnaliser)
+  const STRIPE_LINK = 'https://buy.stripe.com/VOTRE_LIEN_STRIPE';
+  const PAYPAL_LINK = 'https://paypal.me/VOTRE_NOM';
+  if (!f.token) { f.token = genToken2(); persistAll(); }
+  const payPageLink = window.location.href.split('#')[0] + '#doc=facture_' + f.token;
+
+  // Fond encadré paiement
+  doc.setFillColor(0, 50, 70);
+  doc.roundedRect(margin, y, W - margin * 2, 36, 3, 3, 'F');
+  doc.setDrawColor(0, 212, 255);
+  doc.setLineWidth(0.5);
+  doc.roundedRect(margin, y, W - margin * 2, 36, 3, 3, 'S');
+
+  // Titre
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 212, 255);
+  doc.text('💳  RÉGLEZ CETTE FACTURE EN LIGNE', margin + 6, y + 9);
+
+  // Sous-titre
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 220, 240);
+  doc.text('Scannez le QR code ou cliquez sur les liens depuis votre email :', margin + 6, y + 16);
+
+  // Bouton 1 — Carte bancaire Stripe
+  doc.setFillColor(99, 91, 255);
+  doc.roundedRect(margin + 6, y + 20, 52, 12, 2, 2, 'F');
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('💳 Carte bancaire', margin + 32, y + 27.5, { align: 'center' });
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(200, 200, 255);
+  doc.text('Paiement sécurisé Stripe', margin + 32, y + 31.5, { align: 'center' });
+
+  // Bouton 2 — PayPal
+  doc.setFillColor(0, 48, 135);
+  doc.roundedRect(margin + 64, y + 20, 52, 12, 2, 2, 'F');
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('🅿️ PayPal', margin + 90, y + 27.5, { align: 'center' });
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(150, 200, 255);
+  doc.text('Carte ou compte PayPal', margin + 90, y + 31.5, { align: 'center' });
+
+  // Lien de paiement complet
+  doc.setFontSize(6.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 212, 255);
+  const shortLink = payPageLink.length > 60 ? payPageLink.slice(0,60)+'...' : payPageLink;
+  doc.text('Lien : ' + shortLink, margin + 6, y + 34.5);
+
+  y += 40;
+
+  // ── RIB / Virement
+  doc.setFillColor(13, 24, 37);
+  doc.roundedRect(margin, y, W - margin * 2, 30, 3, 3, 'F');
+  doc.setDrawColor(30, 58, 95);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(margin, y, W - margin * 2, 30, 3, 3, 'S');
+  doc.setTextColor(0, 212, 255);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text('🏦  VIREMENT BANCAIRE', margin + 6, y + 8);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(90, 122, 153);
+  doc.setFontSize(8);
+  // Ligne 1
+  doc.text('Bénéficiaire :', margin + 6, y + 15);
+  doc.setTextColor(205, 228, 245);
+  doc.text('QUATRESOLS Jacques', margin + 42, y + 15);
+  // Ligne 2
+  doc.setTextColor(90, 122, 153);
+  doc.text('IBAN :', margin + 6, y + 21);
+  doc.setTextColor(0, 212, 255);
+  doc.text('FR76 XXXX XXXX XXXX XXXX XXXX XXX', margin + 22, y + 21);
+  // Ligne 3
+  doc.setTextColor(90, 122, 153);
+  doc.text('BIC :', margin + 6, y + 27);
+  doc.setTextColor(205, 228, 245);
+  doc.text('XXXXXXXX', margin + 22, y + 27);
+  doc.setTextColor(90, 122, 153);
+  doc.text('Référence obligatoire :', margin + 80, y + 27);
+  doc.setTextColor(255, 200, 87);
+  doc.setFont('helvetica', 'bold');
+  doc.text(f.num, margin + 140, y + 27);
+  // Avertissement ref
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6.5);
+  doc.setTextColor(255, 200, 87);
+  doc.text('⚠ Indiquez impérativement la référence ' + f.num + ' dans le libellé du virement', margin + 6, y + 28.5);
+
+  y += 34;
+
+  // ── Footer
+  doc.setFillColor(13, 24, 37);
+  doc.rect(0, 282, W, 15, 'F');
+  doc.setDrawColor(0, 212, 255);
+  doc.setLineWidth(0.3);
+  doc.line(0, 282, W, 282);
+  doc.setTextColor(90, 122, 153);
+  doc.setFontSize(7);
+  doc.text('THE NIGHT — Jacques QUATRESOLS — Réceptionniste de nuit — Auto-entrepreneur', W / 2, 289, { align: 'center' });
+  doc.setTextColor(0, 212, 255);
+  doc.text('Délai de paiement : 30 jours — ' + f.num, W / 2, 293, { align: 'center' });
+
+  // Sauvegarder
+  doc.save('Facture_' + f.num + '_TheNight.pdf');
+  toast('📄 PDF téléchargé !', 'success');
+}
+
+
+</script>
+</body>
+</html>
